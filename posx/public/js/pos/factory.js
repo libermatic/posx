@@ -1,5 +1,5 @@
-export default function makeExtension(name, ext) {
-  const named = `cm.${name}`;
+export default function makeExtension(name, ext, namespace = 'px') {
+  const named = `${namespace}.${name}`;
   const _extensions = Object.getPrototypeOf(ext)._extensions || [];
   if (_extensions.includes(named)) {
     return Object.getPrototypeOf(ext);

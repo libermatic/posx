@@ -12,6 +12,16 @@ app_color = "green"
 app_email = "info@libermatic.com"
 app_license = "MIT"
 
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": {
+            "fieldname": ("like", "px_%"),
+            "dt": ("in", ["POS Profile", "Payment Entry"],),
+        },
+    },
+]
+
 # Includes in <head>
 # ------------------
 

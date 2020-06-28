@@ -80,9 +80,6 @@ class XZReport(Document):
                 "end_datetime": self.end_datetime or frappe.utils.now(),
             },
         )
-        self.branch = frappe.get_cached_value(
-            "POS Profile", self.pos_profile, "cm_branch"
-        )
 
         sales, returns = _get_invoices(args)
         sales_payments, returns_payments = _get_si_payments(args)
@@ -263,7 +260,7 @@ def _get_pe_payments(args):
             pe.payment_type = %(payment_type)s AND
             pe.company = %(company)s AND
             pe.owner = %(user)s AND
-            TIMESTAMP(pe.posting_date, pe.cm_posting_time)
+            TIMESTAMP(pe.posting_date, pe.px_posting_time)
                 BETWEEN %(start_datetime)s AND %(end_datetime)s
         GROUP BY mode_of_payment
     """

@@ -1,17 +1,17 @@
-import * as scripts from "./scripts";
-import * as extensions from "./extensions";
-// import * as cscripts from "./cscripts";
+import * as scripts from './scripts';
+import * as extensions from './extensions';
+// import * as cscripts from './cscripts';
 
 function get_doctype(import_name) {
   return import_name
-    .split("_")
+    .split('_')
     .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join(" ");
+    .join(' ');
 }
 
-const __version__ = "0.0.0";
+const __version__ = '0.0.0';
 
-frappe.provide("posx");
+frappe.provide('posx');
 posx = { __version__, scripts, extensions };
 
 // Object.keys(cscripts).forEach((import_name) => {
