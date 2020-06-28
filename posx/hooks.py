@@ -17,14 +17,14 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/posx/css/posx.css"
-# app_include_js = "/assets/posx/js/posx.js"
+app_include_js = ["/assets/js/posx.min.js"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/posx/css/posx.css"
 # web_include_js = "/assets/posx/js/posx.js"
 
 # include js in page
-# page_js = {"page" : "public/js/file.js"}
+page_js = {"point-of-sale": "public/includes/point_of_sale.js"}
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}

@@ -1,0 +1,323 @@
+{
+ "autoname": "XZ.YY.",
+ "creation": "2020-06-25 17:02:30.123971",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "start_datetime",
+  "end_datetime",
+  "amended_from",
+  "column_break_4",
+  "user",
+  "user_name",
+  "employee",
+  "column_break_8",
+  "pos_profile",
+  "company",
+  "section_break_11",
+  "opening_cash",
+  "column_break_13",
+  "closing_cash",
+  "section_break_15",
+  "cash_sales",
+  "cash_returns",
+  "column_break_17",
+  "cash_payins",
+  "cash_payouts",
+  "column_break_21",
+  "expected_cash",
+  "short_cash",
+  "sales_sec",
+  "sales",
+  "returns_sec",
+  "returns",
+  "payments_sec",
+  "payments",
+  "summary_sec",
+  "sales__total",
+  "sales__discount_amount",
+  "returns__net_total",
+  "column_break_34",
+  "total__net_total",
+  "total__total_taxes_and_charges",
+  "column_break_37",
+  "total__grand_total",
+  "total__rounded_total"
+ ],
+ "fields": [
+  {
+   "fieldname": "start_datetime",
+   "fieldtype": "Datetime",
+   "label": "Start Datetime"
+  },
+  {
+   "fieldname": "end_datetime",
+   "fieldtype": "Datetime",
+   "label": "End Datetime"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "XZ Report",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "user.full_name",
+   "fieldname": "user_name",
+   "fieldtype": "Read Only",
+   "label": "User Name"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pos_profile",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "POS Profile",
+   "options": "POS Profile",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "opening_cash",
+   "fieldtype": "Currency",
+   "label": "Opening Cash",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "closing_cash",
+   "fieldtype": "Currency",
+   "label": "Closing Cash",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "section_break_15",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "cash_sales",
+   "fieldtype": "Currency",
+   "label": "Cash Sales",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cash_returns",
+   "fieldtype": "Currency",
+   "label": "Cash Returns",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cash_payins",
+   "fieldtype": "Currency",
+   "label": "Cash Payins",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cash_payouts",
+   "fieldtype": "Currency",
+   "label": "Cash Payouts",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expected_cash",
+   "fieldtype": "Currency",
+   "label": "Expected Cash",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "short_cash",
+   "fieldtype": "Currency",
+   "label": "Short Cash",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sales_sec",
+   "fieldtype": "Section Break",
+   "label": "Sales"
+  },
+  {
+   "fieldname": "sales",
+   "fieldtype": "Table",
+   "options": "XZ Report Invoice"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "returns_sec",
+   "fieldtype": "Section Break",
+   "label": "Returns"
+  },
+  {
+   "fieldname": "returns",
+   "fieldtype": "Table",
+   "options": "XZ Report Invoice"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "payments_sec",
+   "fieldtype": "Section Break",
+   "label": "Payments"
+  },
+  {
+   "fieldname": "payments",
+   "fieldtype": "Table",
+   "options": "XZ Report Payment"
+  },
+  {
+   "fieldname": "summary_sec",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "sales__total",
+   "fieldtype": "Currency",
+   "label": "Sales",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales__discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discounts",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "returns__net_total",
+   "fieldtype": "Currency",
+   "label": "Returns",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_34",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total__net_total",
+   "fieldtype": "Currency",
+   "label": "Net Sales",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total__total_taxes_and_charges",
+   "fieldtype": "Currency",
+   "label": "Tax",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_37",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total__grand_total",
+   "fieldtype": "Currency",
+   "label": "Total Tendered",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total__rounded_total",
+   "fieldtype": "Currency",
+   "label": "Total Tendered (Rounded)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "modified": "2020-06-28 20:01:33.171354",
+ "modified_by": "Administrator",
+ "module": "POS X",
+ "name": "XZ Report",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "user_name",
+ "track_changes": 1
+}
