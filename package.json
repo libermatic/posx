@@ -1,0 +1,19 @@
+{
+  "name": "posx",
+  "version": "0.0.0",
+  "description": "ERPNext POS Extended",
+  "main": "posx/public/js/index.js",
+  "scripts": {
+    "version": "sed -i \"s/__version__.*/__version__ = \\\"$npm_package_version\\\"/\" $npm_package_name/__init__.py; sed -i \"s/__version__ = '.*';/__version__ = '$npm_package_version';/\" $npm_package_name/public/js/index.js; git add -A ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libermatic/posx.git"
+  },
+  "author": "Sun Howwrongbum <sun@libermatic.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/libermatic/posx/issues"
+  },
+  "homepage": "https://github.com/libermatic/posx#readme"
+}

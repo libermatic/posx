@@ -1,0 +1,14 @@
+.DS_Store
+*.pyc
+*.egg-info
+*.swp
+tags
+posx/docs/current
+
+__pycache__
+.env
+
+# Bench runtime
+node_modules/
+posx/public/node_modules
+yarn.lock
