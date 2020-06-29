@@ -1,1 +1,1 @@
-export { default as sales_invoice } from './sales_invoice';
+export * from './sales_invoice';

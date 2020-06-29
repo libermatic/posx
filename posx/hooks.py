@@ -20,6 +20,8 @@ fixtures = [
             "dt": (
                 "in",
                 [
+                    "Item",
+                    "Batch",
                     "POS Profile",
                     "Payment Entry",
                     "Purchase Invoice Item",
