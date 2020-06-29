@@ -1,6 +1,6 @@
 import makeExtension from './factory';
 
-async function get_xz_report(pos_profile, company) {
+export async function get_xz_report(pos_profile, company) {
   const {
     message: { px_disable_xz_report: disable_xz_report } = {},
   } = await frappe.db.get_value(
