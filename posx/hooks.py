@@ -17,7 +17,15 @@ fixtures = [
         "doctype": "Custom Field",
         "filters": {
             "fieldname": ("like", "px_%"),
-            "dt": ("in", ["POS Profile", "Payment Entry"],),
+            "dt": (
+                "in",
+                [
+                    "POS Profile",
+                    "Payment Entry",
+                    "Purchase Invoice Item",
+                    "Purchase Receipt Item",
+                ],
+            ),
         },
     },
 ]
@@ -90,13 +98,14 @@ page_js = {"point-of-sale": "public/includes/point_of_sale.js"}
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Purchase Receipt": {
+        "before_validate": "posx.doc_events.purchase_receipt.before_validate",
+    },
+    "Purchase Invoice": {
+        "before_validate": "posx.doc_events.purchase_invoice.before_validate",
+    },
+}
 
 # Scheduled Tasks
 # ---------------
