@@ -1,4 +1,4 @@
-import makeExtension from './factory';
+import makeExtension from '../utils/make-extension';
 
 export async function get_xz_report(pos_profile, company) {
   const {

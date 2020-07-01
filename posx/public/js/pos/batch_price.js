@@ -1,4 +1,4 @@
-import makeExtension from './factory';
+import makeExtension from '../utils/make-extension';
 
 export async function set_batch_price_flag(pos_profile) {
   const { message: { px_use_batch_price } = {} } = await frappe.db.get_value(

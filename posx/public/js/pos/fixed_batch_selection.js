@@ -1,4 +1,4 @@
-import makeExtension from './factory';
+import makeExtension from '../utils/make-extension';
 
 export default function fixed_batch_selection(Pos) {
   return makeExtension(
