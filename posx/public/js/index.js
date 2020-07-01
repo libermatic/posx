@@ -18,3 +18,6 @@ Object.keys(cscripts).forEach((import_name) => {
   const get_handler = cscripts[import_name];
   frappe.ui.form.on(get_doctype(import_name), get_handler());
 });
+
+erpnext.show_serial_batch_selector =
+  extensions.serial_no_batch_selector.show_serial_batch_selector;
