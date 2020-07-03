@@ -7,9 +7,11 @@ export default function shortcuts(Pos) {
       make_cart() {
         super.make_cart();
         this._setup_cart_shortcuts();
+        this._setup_doc_shortcuts();
       }
       _setup_cart_shortcuts() {
-        const should_trigger = () => this.page.wrapper.is(':visible');
+        const should_trigger = () =>
+          !this.payment || !this.payment.dialog.display;
         const handle_selection = (direction) => {
           const $current_item = this.cart.$cart_items.find(
             '.list-item.current-item'
@@ -36,7 +38,7 @@ export default function shortcuts(Pos) {
           page: this.page,
           description: __('Go to Next Cart Item'),
           ignore_inputs: false,
-          condition: should_trigger.bind(this),
+          condition: () => should_trigger(),
         });
         frappe.ui.keys.add_shortcut({
           shortcut: 'up',
@@ -44,7 +46,7 @@ export default function shortcuts(Pos) {
           page: this.page,
           description: __('Go to Previous Cart Item'),
           ignore_inputs: false,
-          condition: should_trigger.bind(this),
+          condition: () => should_trigger(),
         });
 
         const handle_qty_change = (direction) => {
@@ -72,7 +74,7 @@ export default function shortcuts(Pos) {
           page: this.page,
           description: __('Decrease Selected Cart Item Qty'),
           ignore_inputs: false,
-          condition: should_trigger.bind(this),
+          condition: () => should_trigger(),
         });
         frappe.ui.keys.add_shortcut({
           shortcut: 'right',
@@ -80,7 +82,7 @@ export default function shortcuts(Pos) {
           page: this.page,
           description: __('Increase Selected Cart Item Qty'),
           ignore_inputs: false,
-          condition: should_trigger.bind(this),
+          condition: () => should_trigger(),
         });
 
         const handle_qty_focus = () => {
@@ -98,7 +100,7 @@ export default function shortcuts(Pos) {
           page: this.page,
           description: __('Focus on Selected Cart Item Qty'),
           ignore_inputs: false,
-          condition: should_trigger.bind(this),
+          condition: () => should_trigger(),
         });
 
         const handle_delete = () => {
@@ -118,7 +120,44 @@ export default function shortcuts(Pos) {
           page: this.page,
           description: __('Remove Selected Cart Item'),
           ignore_inputs: false,
-          condition: should_trigger.bind(this),
+          condition: () => should_trigger(),
+        });
+
+        frappe.ui.keys.add_shortcut({
+          shortcut: 'ctrl+enter',
+          action: () => this.cart.events.on_numpad(__('Pay')),
+          page: this.page,
+          description: __('Open Payment'),
+          ignore_inputs: false,
+          condition: () => should_trigger(),
+        });
+      }
+      _setup_doc_shortcuts() {
+        const should_trigger = () =>
+          this.frm.doc.docstatus === 1 ||
+          (this.frm.msgbox && this.frm.msgbox.display);
+
+        frappe.ui.keys.add_shortcut({
+          shortcut: 'ctrl+p',
+          action: () => {
+            this.frm.print_preview.printit(true);
+          },
+          page: this.page,
+          description: __('Print'),
+          ignore_inputs: false,
+          condition: () => should_trigger(),
+        });
+
+        frappe.ui.keys.add_shortcut({
+          shortcut: 'ctrl+b',
+          action: () => {
+            this.frm.msgbox && this.frm.msgbox.hide();
+            this.make_new_invoice();
+          },
+          page: this.page,
+          description: __('New'),
+          ignore_inputs: false,
+          condition: () => should_trigger(),
         });
       }
     }
