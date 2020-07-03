@@ -3,11 +3,13 @@ import batch_price from './batch_price';
 import xz_report from './xz_report';
 import shortcuts from './shortcuts';
 import disabled_write_off from './disabled_write_off';
+import theme from './theme';
 
 // compose applies functions from right to left
 // place extensions that need to run first in the end
 
 export const pageOverrides = [
+  theme,
   shortcuts,
   xz_report,
   batch_price,

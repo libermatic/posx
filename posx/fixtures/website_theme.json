@@ -1,0 +1,18 @@
+[
+ {
+  "custom": 1,
+  "docstatus": 0,
+  "doctype": "Website Theme",
+  "js": null,
+  "modified": "2020-07-03 18:59:43.325065",
+  "module": "Website",
+  "name": "Pos X Standard",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "theme": "Pos X Standard",
+  "theme_json": null,
+  "theme_scss": ".pos {\n    display: flex;\n    flex-flow: row nowrap;\n    min-height: calc(100vh - 112px);\n}\n\n.pos-cart {\n    height: 100%;\n    display: flex;\n    flex-flow: column nowrap;\n}\n\n.pos-cart > .cart-wrapper {\n    height: 100%;\n}\n\n.pos-cart > .cart-wrapper > .list-item-table {\n    height: 100%;\n    display: flex;\n    flex-flow: column nowrap;\n}\n\n.pos-cart > .cart-wrapper > .list-item-table > .cart-items {\n    flex: 1 1 auto;\n}\n\n.item-container {\n    display: flex;\n    flex-flow: column nowrap;\n}\n\n.item-container > .items-wrapper {\n    height: 100%;\n}",
+  "theme_url": "/assets/css/pos_x_standard_0d76ec87.css"
+ }
+]
