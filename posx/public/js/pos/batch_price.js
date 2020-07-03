@@ -52,7 +52,9 @@ export default function batch_price(Pos) {
       }
       async update_item_in_frm(item, field, value) {
         const result = await super.update_item_in_frm(item, field, value);
-        await set_batch_price(item);
+        if (!['rate', 'discount_percentage'].includes(field)) {
+          await set_batch_price(item);
+        }
         return result;
       }
     }
