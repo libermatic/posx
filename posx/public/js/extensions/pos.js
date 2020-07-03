@@ -1,7 +1,10 @@
 import { compose } from 'ramda';
 
-import { pageOverrides } from '../pos';
+import { pageOverrides, paymentOverrides } from '../pos';
 
-const pos = compose(...pageOverrides);
+const pos = {
+  page: compose(...pageOverrides),
+  payment: compose(...paymentOverrides),
+};
 
 export default pos;

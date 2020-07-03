@@ -1,1 +1,2 @@
-erpnext.pos.PointOfSale = posx.extensions.pos(erpnext.pos.PointOfSale);
+erpnext.pos.PointOfSale = posx.extensions.pos.page(erpnext.pos.PointOfSale);
+Payment = posx.extensions.pos.payment(Payment);
