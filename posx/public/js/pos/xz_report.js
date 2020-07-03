@@ -2,14 +2,14 @@ import makeExtension from '../utils/make-extension';
 
 export async function get_xz_report(pos_profile, company) {
   const {
-    message: { px_disable_xz_report: disable_xz_report } = {},
+    message: { px_enable_xz_report: enable_xz_report } = {},
   } = await frappe.db.get_value(
     'POS Profile',
     pos_profile,
-    'px_disable_xz_report'
+    'px_enable_xz_report'
   );
 
-  if (disable_xz_report) {
+  if (!enable_xz_report) {
     return null;
   }
 
@@ -72,14 +72,16 @@ export default function xz_report(Pos) {
   return makeExtension(
     'xz_report',
     class PosWithXzReport extends Pos {
-      set_pos_profile_data() {
-        return super.set_pos_profile_data().then(() => {
-          const { pos_profile, company } = this.frm.doc;
-          get_xz_report(pos_profile, company);
-        });
+      async set_pos_profile_data() {
+        const result = await super.set_pos_profile_data();
+        const { pos_profile, company } = this.frm.doc;
+        const xz_report = await get_xz_report(pos_profile, company);
+        if (xz_report) {
+          this._update_menu();
+        }
+        return result;
       }
-      prepare_menu() {
-        super.prepare_menu();
+      _update_menu() {
         this.page.menu
           .find(`a.grey-link:contains("${__('Close the POS')}")`)
           .parent()
