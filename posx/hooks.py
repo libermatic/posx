@@ -30,7 +30,6 @@ fixtures = [
             ),
         },
     },
-    {"doctype": "Website Theme", "filters": {"name": ("in", ["Pos X Standard"])}},
 ]
 
 # Includes in <head>
