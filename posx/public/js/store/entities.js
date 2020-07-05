@@ -137,6 +137,55 @@ export const ENTITIES = [
     get_filters: () => ({ name: frappe.defaults.get_user_default('currency') }),
   },
   {
+    doctype: 'Price List',
+    fields: [
+      // 'enabled',
+      'price_list_name',
+      // 'currency',
+      // 'buying',
+      // 'selling',
+      // 'price_not_uom_dependent',
+    ],
+    get_filters: () => ({ enabled: 1, selling: 1 }),
+  },
+  {
+    doctype: 'Sales Taxes and Charges Template',
+    fields: [
+      'title',
+      // 'is_default',
+      // 'disabled',
+      // 'company',
+      // 'tax_category',
+    ],
+    children: [
+      {
+        doctype: 'Sales Taxes and Charges',
+        fields: [
+          // 'charge_type',
+          // 'row_id',
+          'account_head',
+          'description',
+          'included_in_print_rate',
+          // 'cost_center',
+          // 'dimension_col_break',
+          'rate',
+          // 'tax_amount',
+          // 'total',
+          // 'tax_amount_after_discount_amount',
+          // 'base_tax_amount',
+          // 'base_total',
+          // 'base_tax_amount_after_discount_amount',
+          // 'item_wise_tax_detail',
+          // 'parenttype',
+        ],
+      },
+    ],
+    get_filters: () => ({
+      disabled: 0,
+      company: frappe.defaults.get_user_default('company'),
+    }),
+  },
+  {
     doctype: 'POS Profile',
     fields: [
       // 'naming_series',
@@ -267,6 +316,31 @@ export const ENTITIES = [
       // 'default_sales_partner',
       // 'default_commission_rate',
       // 'customer_pos_id',
+    ],
+  },
+  {
+    doctype: 'Territory',
+    fields: [
+      'territory_name',
+      // 'parent_territory',
+      // 'is_group',
+      // 'territory_manager',
+      // 'lft',
+      // 'rgt',
+      // 'old_parent',
+    ],
+  },
+  {
+    doctype: 'Customer Group',
+    fields: [
+      'customer_group_name',
+      // 'parent_customer_group',
+      // 'is_group',
+      // 'default_price_list',
+      // 'payment_terms',
+      // 'lft',
+      // 'rgt',
+      // 'old_parent',
     ],
   },
 ];

@@ -11,6 +11,11 @@ db.version(1).stores({
   Account: 'name',
   'Cost Center': 'name',
   Currency: 'name',
+  'Price List': 'name',
+
+  'Sales Taxes and Charges Template': 'name',
+  'Sales Taxes and Charges':
+    'name, parent -> "Sales Taxes and Charges Template".name',
 
   'POS Profile': 'name',
   'POS Profile User': 'name, parent -> "POS Profile".name',
@@ -23,6 +28,8 @@ db.version(1).stores({
   'Item Tax': 'name, parent',
 
   Customer: 'name',
+  Territory: 'name',
+  'Customer Group': 'name',
 });
 
 export default db;
