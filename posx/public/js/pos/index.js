@@ -5,11 +5,13 @@ import shortcuts from './shortcuts';
 import disabled_write_off from './disabled_write_off';
 import theme from './theme';
 import sw from './sw';
+import stats from './stats';
 
 // compose applies functions from right to left
 // place extensions that need to run first in the end
 
 export const pageOverrides = [
+  stats,
   sw,
   theme,
   shortcuts,
