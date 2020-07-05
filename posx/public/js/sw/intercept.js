@@ -1,8 +1,10 @@
 import * as methods from '../store/server_methods';
 
-const METHODS = {
-  'frappe.client.get_value': methods.frappe__client__get_value,
-};
+const METHODS = Object.assign(
+  ...Object.keys(methods).map((x) => ({
+    [x.replace(/__/g, '.')]: methods[x],
+  }))
+);
 
 self.addEventListener('fetch', (event) => {
   const endpoint = get_endpoint(event.request);
@@ -11,7 +13,9 @@ self.addEventListener('fetch', (event) => {
       (async function () {
         const client = await self.clients.get(event.clientId);
         if (client && client.url.includes('desk#point-of-sale')) {
-          const result = await query_client(event.request);
+          const args = await get_args(event.request);
+          const method = METHODS[endpoint];
+          const result = await query_client(method, args);
           if (result) {
             return make_response(result);
           }
@@ -23,7 +27,8 @@ self.addEventListener('fetch', (event) => {
               'color:#fff',
               'padding:0.2em',
               'border-radius:0.4em',
-            ].join(';')
+            ].join(';'),
+            args
           );
         }
         return fetch(event.request);
@@ -32,11 +37,9 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-async function query_client(request) {
+async function query_client(method, args) {
   try {
-    const endpoint = get_endpoint(request);
-    const args = await get_args(request);
-    const payload = await METHODS[endpoint](args);
+    const payload = await method(args);
     if (payload) {
       return { payload };
     }
