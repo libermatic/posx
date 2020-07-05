@@ -7,7 +7,10 @@ db.version(1).stores({
   sync_state: 'doctype',
 
   // backend models
+  Company: 'name',
   Account: 'name',
+  'Cost Center': 'name',
+  Currency: 'name',
 
   'POS Profile': 'name',
   'POS Profile User': 'name, parent -> "POS Profile".name',
@@ -18,6 +21,8 @@ db.version(1).stores({
   'Item Group': 'name',
   'Item Default': 'name, parent',
   'Item Tax': 'name, parent',
+
+  Customer: 'name',
 });
 
 export default db;
