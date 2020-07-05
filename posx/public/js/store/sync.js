@@ -62,6 +62,7 @@ function make_request() {
       children,
       start: start + limit,
       limit,
+      get_filters,
     });
   };
 }
