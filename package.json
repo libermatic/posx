@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/libermatic/posx/issues"
   },
-  "homepage": "https://github.com/libermatic/posx#readme"
+  "homepage": "https://github.com/libermatic/posx#readme",
+  "dependencies": {
+    "dexie": "^3.0.1",
+    "dexie-relationships": "^1.2.11",
+    "ramda": "^0.27.0"
+  }
 }
