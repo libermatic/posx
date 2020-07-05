@@ -1,4 +1,5 @@
 import makeExtension from '../utils/make-extension';
+import { pull_entities } from '../store';
 
 export default function sw(Pos) {
   return makeExtension(
@@ -27,6 +28,7 @@ export default function sw(Pos) {
           'px_use_local_datastore'
         );
         this._use_local_datastore = Boolean(px_use_local_datastore);
+        pull_entities();
         return result;
       }
     }
