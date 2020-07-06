@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 import db from '../db';
+import { get_filters, get_fields } from './utils';
 
 export async function frappe__client__get_value({
   doctype,
@@ -30,27 +31,5 @@ export async function frappe__client__get_value({
       .first()
       .then(getResult);
     return message && { message };
-  }
-}
-
-function get_filters(filters) {
-  try {
-    return { filters: JSON.parse(filters) };
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      return { name: filters };
-    }
-    throw error;
-  }
-}
-
-function get_fields(fieldname) {
-  try {
-    return JSON.parse(fieldname);
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      return [fieldname];
-    }
-    throw error;
   }
 }
