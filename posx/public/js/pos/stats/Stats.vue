@@ -79,8 +79,6 @@ export default {
       ];
     },
     getTables: function() {
-      console.log(db.tables);
-
       this.entities = db.tables
         .filter(x => !x.schema.indexes.map(x => x.name).includes('parent'))
         .map(x => x.name);
