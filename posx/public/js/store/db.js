@@ -30,6 +30,13 @@ db.version(1).stores({
   Customer: 'name',
   Territory: 'name',
   'Customer Group': 'name',
+
+  // used by both Address and Contact
+  'Dynamic Link': 'name, parent',
+  Address: 'name',
+  Contact: 'name',
+  'Contact Email': 'name, parent -> "Contact".name',
+  'Contact Phone': 'name, parent -> "Contact".name',
 });
 
 export default db;
