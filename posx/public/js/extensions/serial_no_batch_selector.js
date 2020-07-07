@@ -4,7 +4,7 @@ import makeExtension from '../utils/make-extension';
 function with_batch_price(SBSelector) {
   return makeExtension(
     'batch_price',
-    class SBSelectorWithBatcPrice extends SBSelector {
+    class SBSelectorWithBatchPrice extends SBSelector {
       get_batch_fields() {
         const fields = super.get_batch_fields();
         try {
