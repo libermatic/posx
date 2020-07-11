@@ -1,4 +1,3 @@
-import '../../../../../erpnext/erpnext/public/js/utils/serial_no_batch_selector';
 import makeExtension from '../utils/make-extension';
 
 function with_batch_price(SBSelector) {
@@ -40,18 +39,25 @@ export function show_serial_batch_selector(
   on_close,
   show_dialog
 ) {
-  const SerialNoBatchSelector = with_batch_price(erpnext.SerialNoBatchSelector);
-  return new SerialNoBatchSelector(
-    {
-      frm: frm,
-      item: d,
-      warehouse_details: {
-        type: 'Warehouse',
-        name: d.warehouse,
-      },
-      callback: callback,
-      on_close: on_close,
-    },
-    show_dialog
+  frappe.require(
+    'assets/erpnext/js/utils/serial_no_batch_selector.js',
+    function () {
+      const SerialNoBatchSelector = with_batch_price(
+        erpnext.SerialNoBatchSelector
+      );
+      new SerialNoBatchSelector(
+        {
+          frm: frm,
+          item: d,
+          warehouse_details: {
+            type: 'Warehouse',
+            name: d.warehouse,
+          },
+          callback: callback,
+          on_close: on_close,
+        },
+        show_dialog
+      );
+    }
   );
 }
