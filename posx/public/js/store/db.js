@@ -26,6 +26,9 @@ db.version(1).stores({
   'Item Group': 'name',
   'Item Default': 'name, parent',
   'Item Tax': 'name, parent',
+  Item: 'name',
+  'Item Barcode': 'name, parent -> "Item".name',
+  'UOM Conversion Detail': 'name, parent -> "Item".name',
 
   Customer: 'name',
   Territory: 'name',
