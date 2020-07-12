@@ -518,6 +518,7 @@ export const ENTITIES = [
     children: [
       {
         doctype: 'Dynamic Link',
+        indices: ['link_name'],
         fields: [
           'link_doctype',
           'link_name',
@@ -562,6 +563,7 @@ export const ENTITIES = [
       },
       {
         doctype: 'Dynamic Link',
+        indices: ['link_name'],
         fields: [
           'link_doctype',
           'link_name',
