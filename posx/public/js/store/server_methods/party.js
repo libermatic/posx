@@ -15,6 +15,15 @@ export async function erpnext__accounts__party__get_party_details(args) {
   }
 }
 
+export async function frappe__contacts__doctype__contact__contact__get_contact_details(
+  args
+) {
+  const message = await get_contact_details(args);
+  if (message) {
+    return { message };
+  }
+}
+
 async function get_party_account({ party_type, party, company }) {
   if (party_type !== 'Customer') {
     return;
@@ -76,7 +85,7 @@ async function get_party_details({
     party_address || get_default_address({ doctype: party_type, name: party }),
     _company_address ||
       get_default_address({ doctype: 'Company', name: company }),
-    get_contact_details(party),
+    get_party_contact_details(party),
     get_price_list_details(party, price_list, pos_profile),
     db
       .table('Sales Team')
@@ -210,7 +219,25 @@ async function get_default_address({
   return null;
 }
 
-async function get_contact_details(party) {
+async function get_contact_details({ contact }) {
+  const doc = (await db.table('Contact').get(contact)) || {};
+  if (doc) {
+    return {
+      contact_person: doc.name,
+      contact_display: [doc.salutation, doc.first_name, doc.last_name]
+        .filter((x) => !!x)
+        .join(' '),
+      contact_email: doc.email_id,
+      contact_mobile: doc.mobile_no,
+      contact_phone: doc.phone,
+      contact_designation: doc.designation,
+      contact_department: doc.department,
+    };
+  }
+  return null;
+}
+
+async function get_party_contact_details(party) {
   const null_contact = {
     contact_person: null,
     contact_display: null,
@@ -243,21 +270,7 @@ async function get_contact_details(party) {
     .toArray()
     .then(sort_contacts);
   if (contact) {
-    return {
-      contact_person: contact.name,
-      contact_display: [
-        contact.salutation,
-        contact.first_name,
-        contact.last_name,
-      ]
-        .filter((x) => !!x)
-        .join(' '),
-      contact_email: contact.email_id,
-      contact_mobile: contact.mobile_no,
-      contact_phone: contact.phone,
-      contact_designation: contact.designation,
-      contact_department: contact.department,
-    };
+    return get_contact_details({ contact: contact.name });
   }
   return null_contact;
 }
