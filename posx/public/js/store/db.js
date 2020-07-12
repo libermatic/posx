@@ -31,12 +31,13 @@ db.version(1).stores({
   'UOM Conversion Detail': 'name, parent -> "Item".name',
 
   Customer: 'name',
+  'Party Account': 'name, parent',
+  'Sales Team': 'name, parent -> "Customer".name',
   Territory: 'name',
   'Customer Group': 'name',
 
-  // used by both Address and Contact
-  'Dynamic Link': 'name, parent',
   Address: 'name',
+  'Dynamic Link': 'name, parent, link_name',
   Contact: 'name',
   'Contact Email': 'name, parent -> "Contact".name',
   'Contact Phone': 'name, parent -> "Contact".name',
