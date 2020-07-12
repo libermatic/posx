@@ -186,7 +186,7 @@ async function get_default_address({
     .table('Dynamic Link')
     .where('link_name')
     .equals(name)
-    .and((x) => x.link_doctype === doctype)
+    .and((x) => x.link_doctype === doctype && x.parenttype === 'Address')
     .toArray()
     .then((x) => x.map((y) => y.parent));
   if (links.length === 0) {
@@ -224,7 +224,7 @@ async function get_contact_details(party) {
     .table('Dynamic Link')
     .where('link_name')
     .equals(party)
-    .and((x) => x.link_doctype === 'Customer')
+    .and((x) => x.link_doctype === 'Customer' && x.parenttype === 'Contact')
     .toArray()
     .then((x) => x.map((y) => y.parent));
   if (links.length === 0) {

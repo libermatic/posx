@@ -51,6 +51,7 @@ function make_request() {
           .map(({ name: parent, ...x }) => ({
             ...get_data(x, child, true),
             parent,
+            parenttype: doctype,
           }))
           .filter((x) => x.name)
       )
