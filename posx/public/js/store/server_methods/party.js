@@ -24,6 +24,15 @@ export async function frappe__contacts__doctype__contact__contact__get_contact_d
   }
 }
 
+export async function frappe__contacts__doctype__contact__contact__get_address_tax_category(
+  args
+) {
+  const message = await get_address_tax_category(args);
+  if (message) {
+    return { message };
+  }
+}
+
 async function get_party_account({ party_type, party, company }) {
   if (party_type !== 'Customer') {
     return;
@@ -218,6 +227,12 @@ async function get_default_address({
   }
   return null;
 }
+
+async function get_address_tax_category({
+  tax_category = null,
+  billing_address = null,
+  shipping_address = null,
+}) {}
 
 async function get_contact_details({ contact }) {
   const doc = (await db.table('Contact').get(contact)) || {};
