@@ -1,36 +1,8 @@
-import makeExtension from '../utils/make-extension';
+import { compose } from 'ramda';
 
-function with_batch_price(SBSelector) {
-  return makeExtension(
-    'batch_price',
-    class SBSelectorWithBatchPrice extends SBSelector {
-      get_batch_fields() {
-        const fields = super.get_batch_fields();
-        try {
-          if (frappe.flags.use_batch_price) {
-            fields[1].fields[0].get_query = () => ({
-              filters: {
-                item_code: this.item_code,
-                warehouse:
-                  this.warehouse ||
-                  typeof this.warehouse_details.name == 'string'
-                    ? this.warehouse_details.name
-                    : '',
-              },
-              query: 'posx.api.queries.get_batch_no',
-            });
-          }
-          return fields;
-        } catch (e) {
-          if (e instanceof TypeError) {
-            return fields;
-          }
-          throw e;
-        }
-      }
-    }
-  );
-}
+import { overrides } from '../serial_no_batch_selector';
+
+const withOverrides = compose(...overrides);
 
 export function show_serial_batch_selector(
   frm,
@@ -42,7 +14,7 @@ export function show_serial_batch_selector(
   frappe.require(
     'assets/erpnext/js/utils/serial_no_batch_selector.js',
     function () {
-      const SerialNoBatchSelector = with_batch_price(
+      const SerialNoBatchSelector = withOverrides(
         erpnext.SerialNoBatchSelector
       );
       new SerialNoBatchSelector(
