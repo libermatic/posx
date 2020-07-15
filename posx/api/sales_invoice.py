@@ -15,6 +15,7 @@ def get_batch_price(batch_no, **kwargs):
             price_list: Price List
             qty: Float
             transaction_date: Date
+            uom: UOM
         Returns
             Currency
     """

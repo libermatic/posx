@@ -16,7 +16,7 @@ export async function set_batch_price(item) {
     return;
   }
 
-  const { batch_no, item_code, qty } = item;
+  const { batch_no, item_code, qty, uom } = item;
   if (!batch_no) {
     return;
   }
@@ -35,6 +35,7 @@ export async function set_batch_price(item) {
       price_list,
       qty,
       transaction_date,
+      uom,
     },
   });
 
