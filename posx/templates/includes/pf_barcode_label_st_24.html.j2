@@ -1,0 +1,146 @@
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/assets/css/posx-print.css"
+/>
+
+{% set page_margin_horz = 'calc((210mm - {cols} * {width} - ({cols} - 1) * {gap}) / 2)'.format(
+  cols=col_num or 1, width=label_width or '0mm', gap=column_gap or '0mm'
+) %}
+{% set page_margin_vert = 'calc((297mm - {rows} * {height} - ({rows} - 1) * {gap}) / 2)'.format(
+  rows=row_num or 1, height=label_height or '0mm', gap=row_gap or '0mm'
+) %}
+
+<style>
+  @page {
+    size: A4;
+    margin: {{ page_margin_vert }} {{ page_margin_horz }};
+  }
+  .print-format {
+    padding: 0;
+  }
+  .print-format td, .print-format th {
+    padding: 0 !important;
+  }
+  .posx-barcode-page {
+    display: grid;
+    grid-template-columns: repeat({{ col_num }}, {{ label_width or '64mm' }});
+    grid-column-gap: {{ column_gap or 0 }};
+    grid-row-gap: {{ row_gap or 0 }};
+    grid-template-rows: repeat({{ row_num }}, {{ label_height or '34mm' }});
+  }
+  @media screen {
+    .posx-barcode > tbody > tr > td {
+      margin: {{ page_margin_vert }} {{ page_margin_horz }};
+    }
+    .posx-barcode > tbody > tr {
+      border-bottom: 1px solid {{ style.border_color }};
+    }
+  }
+  .posx-barcode-label-container {
+    border-style: dashed;
+    border-radius: {{ label_border_radius or 0 }};
+  }
+  .posx-barcode-skip {
+    width: {{ label_width or '64mm' }};
+    height: {{ label_height or '34mm' }};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: {{ style.border_color }};
+  }
+  @media print {
+    .posx-barcode-label-container {
+      border: none;
+    }
+    .posx-barcode-skip {
+      opacity: 0;
+    }
+  }
+</style>
+
+{% set items = [None] * frappe.utils.cint(doc.skip) %}
+{% for item in doc.items %}
+  {% for c in range(0, frappe.utils.cint(item.qty)) %}
+    {% set _0 = items.append(item) %}
+  {% endfor %}
+{% endfor %}
+
+{% set num_of_labels = col_num * row_num if col_num and row_num else 1 %}
+
+<table class="posx-barcode">
+  <tbody>
+    {% for p in range(0, items|length, num_of_labels) %}
+    {% set items_in_page = items[p: [items|length, p + num_of_labels]|min] %}
+    <tr>
+      <td class="posx-barcode-page">
+      {% for item in items_in_page + [None] * (num_of_labels - items_in_page|length) %}
+        {% if item %}
+        <div class="posx-barcode-label-container">
+          <div class="posx-barcode-label">
+            <div class="posx-barcode-header">{{ doc.company }}</div>
+            <div class="posx-barcode-text">
+              <span class="posx-barcode-strong">{{ item.item_code }}</span>
+              {% if item.item_code != item.item_name %} :
+              <span>{{ item.item_name }}</span>
+              {% endif %}
+            </div>
+            <div class="posx-barcode-area">
+              {% if item.barcode %}
+                {% if item.barcode_type == 'EAN' %}
+                <svg
+                  class="barcode"
+                  jsbarcode-format="ean13"
+                  jsbarcode-margin="0"
+                  jsbarcode-margintop="4"
+                  jsbarcode-marginbottom="4"
+                  jsbarcode-height="40"
+                  jsbarcode-width="2"
+                  jsbarcode-fontsize="11"
+                  jsbarcode-value="{{ item.barcode }}"
+                ></svg>
+                {% elif item.barcode_type == 'UPC' %}
+                {% else %}
+                <svg
+                  class="barcode"
+                  jsbarcode-format="auto"
+                  jsbarcode-margin="0"
+                  jsbarcode-margintop="4"
+                  jsbarcode-marginbottom="4"
+                  jsbarcode-height="40"
+                  jsbarcode-width="1"
+                  jsbarcode-fontsize="11"
+                  jsbarcode-value="{{ item.barcode }}"
+                ></svg>
+                {% endif %}
+              {% else %}
+              <span>NO_DATA</span>
+              {% endif %}
+            </div>
+            <div class="posx-barcode-foot posx-barcode-strong posx-barcode-rotated">
+              {{ item.get_formatted('price') if item.price else '--' }}
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="posx-barcode-skip">{{ loop.index }}</div>
+        {% endif %}
+      {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<script
+  type="text/javascript"
+  src="/assets/js/posx-print.min.js"
+></script>
+<script type="text/javascript">
+  const barcode = JsBarcode('.barcode');
+  barcode.options({ flat: true });
+  barcode.init();
+</script>
