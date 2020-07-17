@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/libermatic/posx/issues"
   },
-  "homepage": "https://github.com/libermatic/posx#readme"
+  "homepage": "https://github.com/libermatic/posx#readme",
+  "dependencies": {
+    "jsbarcode": "^3.11.0"
+  }
 }
