@@ -1,0 +1,68 @@
+{
+ "creation": "2020-07-17 00:18:23.947181",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "qty",
+  "price",
+  "column_break_5",
+  "barcode",
+  "barcode_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Price",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Read Only",
+   "label": "Barcode"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "barcode_type",
+   "fieldtype": "Read Only",
+   "label": "Barcode Type"
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-07-17 16:34:18.703893",
+ "modified_by": "Administrator",
+ "module": "POS X",
+ "name": "Label Printer Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
