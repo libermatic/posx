@@ -10,7 +10,8 @@ export default function fixed_batch_selection(Pos) {
             batch_no ? x.batch_no === batch_no : x.item_code === item_code
           );
 
-          const updated_qty = item[field] + flt(value);
+          const updated_qty =
+            typeof value === 'string' ? item[field] + flt(value) : value;
           const show_dialog = this._should_show_sb_selector(item, updated_qty);
 
           frappe.flags.hide_serial_batch_dialog = false;

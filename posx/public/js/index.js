@@ -9,7 +9,7 @@ function get_doctype(import_name) {
     .join(' ');
 }
 
-const __version__ = '0.1.1';
+const __version__ = '0.1.5';
 
 frappe.provide('posx');
 posx = { __version__, scripts, extensions };
@@ -18,6 +18,3 @@ Object.keys(cscripts).forEach((import_name) => {
   const get_handler = cscripts[import_name];
   frappe.ui.form.on(get_doctype(import_name), get_handler());
 });
-
-erpnext.show_serial_batch_selector =
-  extensions.serial_no_batch_selector.show_serial_batch_selector;
