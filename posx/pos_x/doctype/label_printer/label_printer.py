@@ -8,7 +8,7 @@ import frappe
 from frappe.model.document import Document
 from toolz.curried import merge, keyfilter
 
-from posx.api.label_printer import get_price
+from posx.api.label_printer import get_item_details
 
 
 class LabelPrinter(Document):
@@ -24,28 +24,7 @@ class LabelPrinter(Document):
                         lambda x: x in ["item_code", "item_name", "qty"],
                         ref_item.as_dict(),
                     ),
-                    _get_barcode(ref_item),
-                    {
-                        "price": get_price(
-                            ref_item.item_code, price_list=self.price_list
-                        )
-                    },
+                    get_item_details(ref_item.item_code, price_list=self.price_list),
                 ),
             )
-
-
-def _get_barcode(item):
-    if item.get("barcode"):
-        return {
-            "barcode": item.barcode,
-            "barcode_type": frappe.get_cached_value(
-                "Item Barcode", item.barcode, fieldname="barcode_type"
-            ),
-        }
-    doc = frappe.get_cached_doc("Item", item.item_code)
-    if doc.barcodes:
-        return keyfilter(
-            lambda x: x in ["barcode", "barcode_type"], doc.barcodes[0].as_dict()
-        )
-    return {}
 

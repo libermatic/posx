@@ -21,16 +21,12 @@ export function label_printer() {
     print_dn: async function (frm) {
       const { print_dt, print_dn } = frm.doc;
       if (print_dt && print_dn) {
-        try {
-          frappe.dom.freeze();
-          await frappe.call({
-            method: 'set_items_from_reference',
-            doc: frm.doc,
-          });
-          frm.refresh_field('items');
-        } finally {
-          frappe.dom.unfreeze();
-        }
+        await frappe.call({
+          method: 'set_items_from_reference',
+          doc: frm.doc,
+          freeze: true,
+        });
+        frm.refresh_field('items');
       }
     },
   };
@@ -42,13 +38,18 @@ export function label_printer_item() {
       const { item_code } = frappe.get_doc(cdt, cdn) || {};
       const { price_list } = frm.doc;
       if (item_code && price_list) {
-        const { message: price } = await frappe.call({
-          method: 'posx.api.label_printer.get_price',
+        const { message: details } = await frappe.call({
+          method: 'posx.api.label_printer.get_item_details',
           args: { item_code, price_list },
+          error_handlers: { DoesNotExistError: () => {} },
         });
-        frappe.model.set_value(cdt, cdn, 'price', price);
+        ['price', 'barcode', 'barcode_type'].forEach((x) =>
+          frappe.model.set_value(cdt, cdn, x, details[x])
+        );
       } else {
-        frappe.model.set_value(cdt, cdn, 'price', null);
+        ['price', 'barcode', 'barcode_type'].forEach((x) =>
+          frappe.model.set_value(cdt, cdn, x, null)
+        );
       }
     },
   };

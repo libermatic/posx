@@ -2,10 +2,15 @@
 from __future__ import unicode_literals
 import frappe
 from erpnext.stock.get_item_details import get_item_price
+from toolz.curried import merge
 
 
 @frappe.whitelist(0)
-def get_price(item_code, price_list):
+def get_item_details(item_code, price_list):
+    return merge({"price": _get_price(item_code, price_list)}, _get_barcode(item_code))
+
+
+def _get_price(item_code, price_list):
     args = {
         "price_list": price_list,
         "uom": frappe.get_cached_value("Item", item_code, "stock_uom"),
@@ -20,3 +25,18 @@ def get_price(item_code, price_list):
             return get_item_price(args, variant_of, ignore_party=True)[0][1]
     except IndexError:
         return None
+
+
+def _get_barcode(item_code):
+    try:
+        return frappe.get_cached_value(
+            "Item Barcode",
+            {"parent": item_code},
+            fieldname=["barcode", "barcode_type"],
+            as_dict=1,
+        )
+    except frappe.DoesNotExistError as e:
+        print(e)
+        print("not " * 30)
+        return {}
+
