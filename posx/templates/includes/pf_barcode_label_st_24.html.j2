@@ -87,37 +87,24 @@
               <span>{{ item.item_name }}</span>
               {% endif %}
             </div>
+            {% set barcode = item.batch_no if doc.encode_field == 'Batch No' else item.barcode %}
+            {% set barcode_type = 'ean13' if doc.encode_field != 'Batch No' and item.barcode_type == 'EAN' else 'auto' %}
             <div class="posx-barcode-area">
-              {% if item.barcode %}
-                {% if item.barcode_type == 'EAN' %}
-                <svg
-                  class="barcode"
-                  jsbarcode-format="ean13"
-                  jsbarcode-margin="0"
-                  jsbarcode-margintop="4"
-                  jsbarcode-marginbottom="4"
-                  jsbarcode-height="40"
-                  jsbarcode-width="2"
-                  jsbarcode-fontsize="11"
-                  jsbarcode-value="{{ item.barcode }}"
-                ></svg>
-                {% elif item.barcode_type == 'UPC' %}
-                {% else %}
-                <svg
-                  class="barcode"
-                  jsbarcode-format="auto"
-                  jsbarcode-margin="0"
-                  jsbarcode-margintop="4"
-                  jsbarcode-marginbottom="4"
-                  jsbarcode-height="40"
-                  jsbarcode-width="1"
-                  jsbarcode-fontsize="11"
-                  jsbarcode-value="{{ item.barcode }}"
-                ></svg>
-                {% endif %}
-              {% else %}
+            {% if barcode %}
+              <svg
+                class="barcode"
+                jsbarcode-format="{{ barcode_type }}"
+                jsbarcode-margin="0"
+                jsbarcode-margintop="4"
+                jsbarcode-marginbottom="4"
+                jsbarcode-height="40"
+                jsbarcode-width="{{ 2 if barcode_type == 'ean13' else 1 }}"
+                jsbarcode-fontsize="11"
+                jsbarcode-value="{{ barcode }}"
+              ></svg>
+            {% else %}
               <span>NO_DATA</span>
-              {% endif %}
+            {% endif %}
             </div>
             <div class="posx-barcode-foot posx-barcode-strong posx-barcode-rotated">
               {{ item.get_formatted('price') if item.price else '--' }}
