@@ -10,6 +10,10 @@ export function label_printer() {
       ['print_dt', 'print_dn'].forEach((field) => {
         frm.set_df_property(field, 'only_select', 1);
       });
+      frm.set_query('batch_no', 'items', (_, cdt, cdn) => {
+        const { item_code: item } = frappe.get_doc(cdt, cdn);
+        return { filters: { item } };
+      });
 
       frm.page.wrapper.on('view-change', () => {
         setup_buttons(frm);
@@ -35,12 +39,12 @@ export function label_printer() {
 export function label_printer_item() {
   return {
     item_code: async function (frm, cdt, cdn) {
-      const { item_code } = frappe.get_doc(cdt, cdn) || {};
+      const { item_code, batch_no } = frappe.get_doc(cdt, cdn) || {};
       const { price_list } = frm.doc;
       if (item_code && price_list) {
         const { message: details } = await frappe.call({
           method: 'posx.api.label_printer.get_item_details',
-          args: { item_code, price_list },
+          args: { item_code, batch_no, price_list },
           error_handlers: { DoesNotExistError: () => {} },
         });
         ['price', 'barcode', 'barcode_type'].forEach((x) =>
@@ -60,7 +64,6 @@ function setup_buttons(frm) {
   const is_print_preview = frm.page.current_view_name === 'print' || frm.hidden;
 
   frm.page.set_primary_action('Print', async function () {
-    console.log('primary_action');
     if (!is_print_preview) {
       let has_errored;
       await frm.save(undefined, undefined, undefined, () => {

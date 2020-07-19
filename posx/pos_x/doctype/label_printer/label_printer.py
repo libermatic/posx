@@ -16,15 +16,18 @@ class LabelPrinter(Document):
         ref_doc = frappe.get_doc(self.print_dt, self.print_dn)
         self.items = []
         for ref_item in ref_doc.items:
-            print(ref_item.item_code)
             self.append(
                 "items",
                 merge(
                     keyfilter(
-                        lambda x: x in ["item_code", "item_name", "qty"],
+                        lambda x: x in ["item_code", "item_name", "qty", "batch_no"],
                         ref_item.as_dict(),
                     ),
-                    get_item_details(ref_item.item_code, price_list=self.price_list),
+                    get_item_details(
+                        ref_item.item_code,
+                        ref_item.batch_no,
+                        price_list=self.price_list,
+                    ),
                 ),
             )
 

@@ -10,7 +10,10 @@
   "price",
   "column_break_5",
   "barcode",
-  "barcode_type"
+  "barcode_type",
+  "batch_no",
+  "manufacturing_date",
+  "expiry_date"
  ],
  "fields": [
   {
@@ -53,10 +56,30 @@
    "fieldname": "barcode_type",
    "fieldtype": "Read Only",
    "label": "Barcode Type"
+  },
+  {
+   "fetch_from": "batch_no.manufacturing_date",
+   "fieldname": "manufacturing_date",
+   "fieldtype": "Date",
+   "label": "Manufacturing Date",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "batch_no.expiry_date",
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "batch_no",
+   "fieldtype": "Link",
+   "label": "Batch No",
+   "options": "Batch"
   }
  ],
  "istable": 1,
- "modified": "2020-07-17 16:34:18.703893",
+ "modified": "2020-07-19 19:27:13.697890",
  "modified_by": "Administrator",
  "module": "POS X",
  "name": "Label Printer Item",
