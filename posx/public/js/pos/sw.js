@@ -5,19 +5,6 @@ export default function sw(Pos) {
   return makeExtension(
     'sw',
     class PosWithSW extends Pos {
-      constructor(wrapper) {
-        super(wrapper);
-        handle_sw({
-          onUpdate: (registration) =>
-            frappe.confirm(
-              'Application has updated in the background. Do you want to reload?',
-              () => {
-                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                window.location.reload(true);
-              }
-            ),
-        });
-      }
       async set_pos_profile_data() {
         const result = await super.set_pos_profile_data();
         const {
@@ -28,25 +15,28 @@ export default function sw(Pos) {
           'px_use_local_datastore'
         );
         this._use_local_datastore = Boolean(px_use_local_datastore);
-        pull_entities();
+        if (this._use_local_datastore) {
+          pull_entities();
+        }
+        handle_sw(this._use_local_datastore, {
+          onUpdate: (registration) =>
+            frappe.confirm(
+              'Application has updated in the background. Do you want to reload?',
+              () => {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload(true);
+              }
+            ),
+        });
         return result;
       }
     }
   );
 }
 
-async function handle_sw({ onUpdate }) {
-  const { message: settings = {} } = await frappe.db.get_value(
-    'POS X Settings',
-    null,
-    'install_service_worker'
-  );
-
-  const install_service_worker = Boolean(
-    parseInt(settings.install_service_worker)
-  );
+async function handle_sw(shouldInstall, { onUpdate }) {
   if ('serviceWorker' in navigator) {
-    if (install_service_worker) {
+    if (shouldInstall) {
       navigator.serviceWorker
         .register('/assets/posx/includes/service-worker.js', {
           scope: '/desk',
