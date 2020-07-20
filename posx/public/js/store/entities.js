@@ -526,7 +526,10 @@ export const ENTITIES = [
         ],
       },
     ],
-    get_filters: () => ({ disabled: 0, link_doctype: 'Customer' }),
+    get_filters: () => ({
+      disabled: 0,
+      link_doctype: ['in', ['Company', 'Customer']],
+    }),
   },
   {
     doctype: 'Contact',

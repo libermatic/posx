@@ -295,7 +295,7 @@ function get_gstin(address) {
     ? db
         .table('Address')
         .get(address)
-        .then((x) => x.gstin)
+        .then((x) => x && x.gstin)
     : null;
 }
 function get_tax_category(address) {
