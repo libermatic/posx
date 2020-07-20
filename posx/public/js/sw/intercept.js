@@ -1,4 +1,5 @@
 import * as methods from '../store/server_methods';
+import logger from '../utils/logger';
 
 const METHODS = Object.assign(
   ...Object.keys(methods).map((x) => ({
@@ -20,16 +21,7 @@ self.addEventListener('fetch', (event) => {
             return make_response(result);
           }
           // log unhandled requests
-          console.log(
-            `%c${endpoint}`,
-            [
-              'background-color:#009688',
-              'color:#fff',
-              'padding:0.2em',
-              'border-radius:0.4em',
-            ].join(';'),
-            args
-          );
+          logger(endpoint, { args });
         }
         return fetch(event.request);
       })()
