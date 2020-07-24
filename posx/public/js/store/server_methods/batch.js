@@ -13,7 +13,7 @@ export async function erpnext__stock__doctype__batch__batch__get_batch_no({
   serial_no = null,
 }) {
   if (serial_no) {
-    logger('get_batch_no: delegate queries with serial_no from network');
+    logger('get_batch_no: delegate queries with serial_no to network');
     return;
   }
 
@@ -74,6 +74,28 @@ export async function posx__api__sales_invoice__get_batch_qty({
     }),
   ]);
   return { message: { available_qty, batch_price_list_rate } };
+}
+
+export async function erpnext__stock__get_item_details__get_batch_qty_and_serial_no({
+  batch_no,
+  stock_qty,
+  warehouse,
+  item_code,
+  has_serial_no,
+}) {
+  if (Boolean(Number(has_serial_no))) {
+    logger(
+      'get_batch_qty_and_serial_no: delegate queries with serial_no to network'
+    );
+    return;
+  }
+  const { qty: actual_batch_qty } = await db.batch_stock
+    .where({
+      batch_no,
+      warehouse,
+    })
+    .first();
+  return { actual_batch_qty };
 }
 
 async function get_batch_price({
