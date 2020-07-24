@@ -79,7 +79,7 @@ async function getChildrenWithPriceDetails(args, parent) {
   );
 }
 
-async function getPriceListRate({
+export async function get_price_list_rate({
   item_code,
   customer,
   price_list,
@@ -145,7 +145,7 @@ async function getPriceListRate({
     return item_price;
   }
 
-  const { variant_of } = (await db.table('Item').get(x.item_code)) || {};
+  const { variant_of } = (await db.table('Item').get(item_code)) || {};
   if (variant_of) {
     const template_price = await getPrice(variant_of);
     if (template_price) {
@@ -192,4 +192,17 @@ function getRowWithPricingRule(row) {
     discount_percentage_on_rate: [],
     discount_amount_on_rate: [],
   };
+}
+
+export async function get_conversion_factor({ item_code, uom }) {
+  const { variant_of } = (await db.table('Item').get(item_code)) || {};
+  const parents = variant_of ? [item_code, variant_of] : [item_code];
+  const { conversion_factor = 1 } =
+    (await db
+      .table('UOM Conversion Detail')
+      .where('parent')
+      .anyOf(parents)
+      .and((x) => x.uom === uom)
+      .first()) || {};
+  return { conversion_factor };
 }
