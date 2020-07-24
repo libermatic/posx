@@ -115,9 +115,9 @@ async function item_group_query({ txt = '', page_length, filters: _filters }) {
 }
 
 async function batch_query({ txt = '', page_length, filters: _filters }) {
-  const {
-    filters: { item_code, warehouse, posting_date, is_return } = {},
-  } = get_filters(_filters);
+  const { filters: { item_code, warehouse, posting_date } = {} } = get_filters(
+    _filters
+  );
 
   function search_txt(item) {
     const fields = [
@@ -164,11 +164,33 @@ async function batch_query({ txt = '', page_length, filters: _filters }) {
         new Date(x.expiry_date) >= new Date(posting_date)
     );
 
-  if (warehouse) {
+  if (!warehouse) {
+    return collection
+      .limit(page_length)
+      .sortBy('expiry_date')
+      .then(make_result);
   }
 
-  const results = await collection.limit(page_length).sortBy('expiry_date');
-  console.log(results);
-
-  return make_result(results);
+  return collection
+    .sortBy('expiry_date')
+    .then((x) =>
+      Promise.all(
+        x.map(async function (batch) {
+          const { qty = 0 } = await db.batch_stock
+            .where({
+              batch_no: batch.name,
+              warehouse,
+            })
+            .first();
+          return { ...batch, qty };
+        })
+      )
+    )
+    .then(
+      R.compose(
+        R.slice(0, page_length),
+        R.filter((x) => x.qty > 0)
+      )
+    )
+    .then(make_result);
 }
