@@ -1,3 +1,5 @@
+import * as R from 'ramda';
+
 import db from '../db';
 import { get_filters } from './utils';
 
@@ -24,25 +26,15 @@ export async function frappe__desk__search__search_link({
   ) {
     return item_group_query({ txt, page_length, filters });
   }
-
-  console.log('doctype: ', typeof doctype, '>', doctype);
-  console.log('txt: ', typeof txt, '>', txt);
-  console.log('query: ', typeof query, '>', query);
-  console.log('filters: ', typeof filters, '>', filters);
-  console.log('page_length: ', typeof page_length, '>', page_length);
-  console.log('searchfield: ', typeof searchfield, '>', searchfield);
-  console.log(
-    'reference_doctype: ',
-    typeof reference_doctype,
-    '>',
-    reference_doctype
-  );
-  console.log(
-    'ignore_user_permissions: ',
-    typeof ignore_user_permissions,
-    '>',
-    ignore_user_permissions
-  );
+  if (
+    doctype === 'Batch' &&
+    [
+      'erpnext.controllers.queries.get_batch_no',
+      'posx.api.queries.get_batch_no',
+    ].includes(query)
+  ) {
+    return batch_query({ txt, page_length, filters });
+  }
 }
 
 async function customer_query({ txt = '', page_length, filters }) {
@@ -119,5 +111,64 @@ async function item_group_query({ txt = '', page_length, filters: _filters }) {
     .filter(search_txt)
     .limit(page_length)
     .toArray();
+  return make_result(results);
+}
+
+async function batch_query({ txt = '', page_length, filters: _filters }) {
+  const {
+    filters: { item_code, warehouse, posting_date, is_return } = {},
+  } = get_filters(_filters);
+
+  function search_txt(item) {
+    const fields = [
+      'name',
+      'manufacturing_date',
+      'expiry_date',
+      'px_price_list_rate',
+    ];
+    const _txt = txt.toLowerCase();
+    return (
+      !_txt ||
+      ['name', ...fields].some(
+        (field) => item[field] && item[field].toLowerCase().includes(_txt)
+      )
+    );
+  }
+
+  function make_result(results) {
+    const get_description = R.compose(R.join(', '), R.filter(R.identity));
+    return {
+      results: results.map((x) => ({
+        value: x.name,
+        description: get_description([
+          x.qty,
+          x.stock_uom,
+          x.manufacturing_date && `MFG-${x.manufacturing_date}`,
+          x.expiry_date && `EXP-${x.expiry_date}`,
+          x.px_price_list_rate && `PRICE-${x.px_price_list_rate}`,
+        ]),
+      })),
+    };
+  }
+
+  const collection = db
+    .table('Batch')
+    .where('item')
+    .equals(item_code)
+    .and((x) => !x.disabled)
+    .and(search_txt)
+    .and(
+      (x) =>
+        !posting_date ||
+        !x.expiry_date ||
+        new Date(x.expiry_date) >= new Date(posting_date)
+    );
+
+  if (warehouse) {
+  }
+
+  const results = await collection.limit(page_length).sortBy('expiry_date');
+  console.log(results);
+
   return make_result(results);
 }

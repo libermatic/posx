@@ -30,6 +30,6 @@ def get_batch_no(doctype, txt, searchfield, start, page_len, filters):
         price = batch_prices.get(batch[0])
         if not price:
             return batch
-        return batch + tuple(["MRP-{}".format(price)])
+        return batch + tuple(["PRICE-{}".format(price)])
 
     return [set_price(x) for x in result]

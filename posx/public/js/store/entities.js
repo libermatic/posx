@@ -433,6 +433,25 @@ export const ENTITIES = [
     get_filters: () => ({ selling: 1 }),
   },
   {
+    doctype: 'Batch',
+    indices: ['item'],
+    fields: [
+      'batch_id',
+      'item',
+      // 'image',
+      // 'parent_batch',
+      'disabled',
+      'manufacturing_date',
+      'expiry_date',
+      'px_price_list_rate',
+      // 'supplier',
+      // 'reference_doctype',
+      // 'reference_name',
+      // 'description',
+    ],
+    get_filters: () => ({ disabled: 0 }),
+  },
+  {
     doctype: 'Customer',
     fields: [
       // 'naming_series',
