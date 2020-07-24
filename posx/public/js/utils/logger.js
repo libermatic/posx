@@ -1,6 +1,6 @@
 export default function logger(
   msg,
-  { bgcolor = '#009688', fgcolor = '#fff', args }
+  { bgcolor = '#009688', fgcolor = '#fff', args } = {}
 ) {
   console.log(
     `%c${msg}`,
