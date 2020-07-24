@@ -3,8 +3,10 @@ import * as R from 'ramda';
 import db from './db';
 import { ENTITIES } from './entities';
 
+const LIMIT = 100;
+
 export async function pull_entities() {
-  ENTITIES.forEach(make_request());
+  return Promise.all(ENTITIES.map(make_request()));
 }
 
 function make_request() {
@@ -14,7 +16,7 @@ function make_request() {
     fields,
     children = [],
     start = 0,
-    limit = 100,
+    limit = LIMIT,
     get_filters,
   }) {
     const _fields = [
@@ -90,4 +92,29 @@ function get_data(data, model, is_child = false) {
   }
 
   return R.pick(['name', ...model.fields], data);
+}
+
+export function pull_stock_qtys({ warehouse }) {
+  async function storeStock(stock) {
+    const existing = await db.batch_stock
+      .where({
+        batch_no: stock.batch_no,
+        warehouse: stock.warehouse,
+      })
+      .first();
+    return db.batch_stock.put({ ...existing, ...stock });
+  }
+  return async function () {
+    const entities = await db.table('Batch').toArray().then(R.pluck('name'));
+    Promise.all(
+      R.splitEvery(LIMIT, entities).map((batches) =>
+        frappe
+          .call({
+            method: 'posx.api.item.get_stock_qtys',
+            args: { batches, warehouse },
+          })
+          .then(({ message: data }) => Promise.all(data.map(storeStock)))
+      )
+    );
+  };
 }

@@ -1,5 +1,5 @@
 import makeExtension from '../utils/make-extension';
-import { pull_entities } from '../store';
+import { pull_entities, pull_stock_qtys } from '../store';
 
 export default function sw(Pos) {
   return makeExtension(
@@ -8,15 +8,14 @@ export default function sw(Pos) {
       async set_pos_profile_data() {
         const result = await super.set_pos_profile_data();
         const {
-          message: { px_use_local_datastore } = {},
-        } = await frappe.db.get_value(
-          'POS Profile',
-          this.frm.doc.pos_profile,
-          'px_use_local_datastore'
-        );
+          message: { px_use_local_datastore, warehouse } = {},
+        } = await frappe.db.get_value('POS Profile', this.frm.doc.pos_profile, [
+          'px_use_local_datastore',
+          'warehouse',
+        ]);
         this._use_local_datastore = Boolean(px_use_local_datastore);
         if (this._use_local_datastore) {
-          pull_entities();
+          pull_entities().then(pull_stock_qtys({ warehouse }));
         }
         handle_sw(this._use_local_datastore, {
           onUpdate: (registration) =>

@@ -19,6 +19,10 @@ function getModelSchema() {
 
 const db = new Dexie('posx');
 
-db.version(1).stores({ sync_state: 'doctype', ...getModelSchema() });
+db.version(1).stores({
+  sync_state: 'doctype',
+  batch_stock: '++id, [batch_no+warehouse]',
+  ...getModelSchema(),
+});
 
 export default db;
