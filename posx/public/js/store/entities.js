@@ -191,7 +191,7 @@ export const ENTITIES = [
       // 'naming_series',
       // 'customer',
       // 'company',
-      // 'warehouse',
+      'warehouse',
       // 'company_address',
       // 'px_theme',
       // 'update_stock',
