@@ -4,3 +4,4 @@ export * from './search_link';
 export * from './party';
 export * from './get_item_details';
 export * from './pricing_rule';
+export * from './batch';
