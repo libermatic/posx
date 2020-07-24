@@ -5,8 +5,17 @@ export default function sw(Pos) {
   return makeExtension(
     'sw',
     class PosWithSW extends Pos {
-      async set_pos_profile_data() {
-        const result = await super.set_pos_profile_data();
+      async make() {
+        const result = await super.make();
+        this._setup_datastore();
+        return result;
+      }
+      async on_change_pos_profile() {
+        const result = await super.on_change_pos_profile();
+        this._setup_datastore();
+        return result;
+      }
+      async _setup_datastore() {
         const {
           message: { px_use_local_datastore, warehouse } = {},
         } = await frappe.db.get_value('POS Profile', this.frm.doc.pos_profile, [
@@ -27,7 +36,6 @@ export default function sw(Pos) {
               }
             ),
         });
-        return result;
       }
     }
   );
