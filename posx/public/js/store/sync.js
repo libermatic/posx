@@ -118,3 +118,9 @@ export function pull_stock_qtys({ warehouse }) {
     );
   };
 }
+
+export async function set_session_state(args) {
+  return db.session_state.bulkPut(
+    Object.keys(args).map((key) => ({ key, value: args[key] }))
+  );
+}
