@@ -95,25 +95,41 @@ function get_data(data, model, is_child = false) {
 }
 
 export function pull_stock_qtys({ warehouse }) {
-  async function storeStock(stock) {
-    const existing = await db.batch_stock
-      .where({
-        batch_no: stock.batch_no,
-        warehouse: stock.warehouse,
-      })
-      .first();
-    return db.batch_stock.put({ ...existing, ...stock });
+  function storeStock(doctype) {
+    const table_name = doctype === 'Item' ? 'item_stock' : 'batch_stock';
+    const where_keys = [
+      doctype === 'Item' ? 'item_code' : 'batch_no',
+      'warehouse',
+    ];
+    return async function (stock) {
+      const existing = await db
+        .table(table_name)
+        .where(R.pick(where_keys, stock))
+        .first();
+      return db.table(table_name).put({ ...existing, ...stock });
+    };
   }
+
   return async function () {
-    const entities = await db.table('Batch').toArray().then(R.pluck('name'));
-    Promise.all(
-      R.splitEvery(LIMIT, entities).map((batches) =>
-        frappe
-          .call({
-            method: 'posx.api.pos.get_stock_qtys',
-            args: { batches, warehouse },
-          })
-          .then(({ message: data }) => Promise.all(data.map(storeStock)))
+    return Promise.all(
+      ['Item', 'Batch'].map((doctype) =>
+        db
+          .table(doctype)
+          .toArray(R.pluck('name'))
+          .then((entities) =>
+            Promise.all(
+              R.splitEvery(LIMIT, entities).map((items) =>
+                frappe
+                  .call({
+                    method: 'posx.api.pos.get_stock_qtys',
+                    args: { warehouse, doctype, items },
+                  })
+                  .then(({ message: data }) =>
+                    Promise.all(data.map(storeStock(doctype)))
+                  )
+              )
+            )
+          )
       )
     );
   };

@@ -23,6 +23,7 @@ db.version(1).stores({
   sync_state: 'doctype',
   session_state: 'key',
   settings: 'doctype',
+  item_stock: '++id, [item_code+warehouse]',
   batch_stock: '++id, [batch_no+warehouse]',
   ...getModelSchema(),
 });
