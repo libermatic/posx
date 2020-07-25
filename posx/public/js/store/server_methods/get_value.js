@@ -33,3 +33,13 @@ export async function frappe__client__get_value({
     return message && { message };
   }
 }
+
+export async function frappe__client__get_single_value({ doctype, field }) {
+  const settings = await db.settings.get(doctype);
+  if (!settings) {
+    return;
+  }
+
+  const message = settings[field];
+  return { message };
+}
