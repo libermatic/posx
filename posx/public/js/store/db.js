@@ -22,6 +22,7 @@ const db = new Dexie('posx');
 db.version(1).stores({
   sync_state: 'doctype',
   session_state: 'key',
+  settings: 'doctype',
   batch_stock: '++id, [batch_no+warehouse]',
   ...getModelSchema(),
 });

@@ -26,3 +26,9 @@ def get_stock_qtys(warehouse, items=None, batches=None):
         )
 
     frappe.throw(frappe._("Either a list of items or batches is required"))
+
+
+@frappe.whitelist()
+def get_settings(doctype, fields):
+    _fields = json.loads(fields)
+    return frappe.get_cached_value(doctype, None, fieldname=_fields, as_dict=1)

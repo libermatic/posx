@@ -1,5 +1,10 @@
 import makeExtension from '../utils/make-extension';
-import { pull_entities, pull_stock_qtys, set_session_state } from '../store';
+import {
+  pull_entities,
+  pull_stock_qtys,
+  set_session_state,
+  cache_settings,
+} from '../store';
 
 export default function sw(Pos) {
   return makeExtension(
@@ -25,16 +30,13 @@ export default function sw(Pos) {
         ]);
         this._use_local_datastore = Boolean(px_use_local_datastore);
         if (this._use_local_datastore) {
-          pull_entities().then(
-            Promise.all([
-              set_session_state({
-                user: frappe.session.user,
-                pos_profile,
-                warehouse,
-              }),
-              pull_stock_qtys({ warehouse }),
-            ])
-          );
+          pull_entities().then(pull_stock_qtys({ warehouse }));
+          set_session_state({
+            user: frappe.session.user,
+            pos_profile,
+            warehouse,
+          });
+          cache_settings();
         }
         handle_sw(this._use_local_datastore, {
           onUpdate: (registration) =>
