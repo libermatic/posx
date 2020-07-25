@@ -155,7 +155,7 @@ export const ENTITIES = [
       'is_default',
       // 'disabled',
       'company',
-      // 'tax_category',
+      'tax_category',
     ],
     children: [
       {

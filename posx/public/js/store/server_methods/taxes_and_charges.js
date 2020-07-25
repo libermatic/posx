@@ -67,7 +67,7 @@ async function get_default_taxes_and_charges({
   return { taxes_and_charges, taxes };
 }
 
-async function get_taxes_and_charges({ master_doctype, master_name }) {
+export async function get_taxes_and_charges({ master_doctype, master_name }) {
   if (master_doctype !== 'Sales Taxes and Charges Template') {
     return;
   }
