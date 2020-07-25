@@ -6,3 +6,4 @@ export * from './get_item_details';
 export * from './pricing_rule';
 export * from './batch';
 export * from './taxes_and_charges';
+export * from './address';
