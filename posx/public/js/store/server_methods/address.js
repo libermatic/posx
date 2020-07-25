@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import nunjucks from 'nunjucks/browser/nunjucks';
 
 import db from '../db';
 import { get_taxes_and_charges } from './taxes_and_charges';
@@ -26,6 +27,26 @@ export async function erpnext__setup__doctype__company__company__get_default_com
     return { message: existing_address };
   }
   return { message: R.head(addresses) };
+}
+
+export async function frappe__contacts__doctype__address__address__get_address_display({
+  address_dict,
+}) {
+  if (!address_dict) {
+    return { message: null };
+  }
+
+  const [{ template } = {}, address] = await Promise.all([
+    db
+      .table('Address Template')
+      .filter((x) => x.is_default === 1)
+      .first(),
+    db.table('Address').get(address_dict),
+  ]);
+  if (template && address) {
+    const message = nunjucks.renderString(template, address);
+    return { message };
+  }
 }
 
 async function get_regional_address_details({
