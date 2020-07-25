@@ -110,7 +110,7 @@ export function pull_stock_qtys({ warehouse }) {
       R.splitEvery(LIMIT, entities).map((batches) =>
         frappe
           .call({
-            method: 'posx.api.item.get_stock_qtys',
+            method: 'posx.api.pos.get_stock_qtys',
             args: { batches, warehouse },
           })
           .then(({ message: data }) => Promise.all(data.map(storeStock)))
