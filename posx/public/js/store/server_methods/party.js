@@ -1,5 +1,7 @@
 import * as R from 'ramda';
+
 import db from '../db';
+import { set_taxes } from './taxes_and_charges';
 
 export async function erpnext__accounts__party__get_party_account(args) {
   const message = await get_party_account(args);
@@ -15,19 +17,15 @@ export async function erpnext__accounts__party__get_party_details(args) {
   }
 }
 
+export async function erpnext__accounts__party__get_address_tax_category(args) {
+  const message = await get_address_tax_category(args);
+  return { message };
+}
+
 export async function frappe__contacts__doctype__contact__contact__get_contact_details(
   args
 ) {
   const message = await get_contact_details(args);
-  if (message) {
-    return { message };
-  }
-}
-
-export async function frappe__contacts__doctype__contact__contact__get_address_tax_category(
-  args
-) {
-  const message = await get_address_tax_category(args);
   if (message) {
     return { message };
   }
@@ -232,7 +230,29 @@ async function get_address_tax_category({
   tax_category = null,
   billing_address = null,
   shipping_address = null,
-}) {}
+}) {
+  const { determine_address_tax_category_from } =
+    (await db.settings.get('Accounts Settings')) || {};
+
+  function get_category(address) {
+    return db
+      .table('Address')
+      .get(address)
+      .then(R.propOr(tax_category, 'tax_category'));
+  }
+
+  if (
+    determine_address_tax_category_from === 'Shipping Address' &&
+    shipping_address
+  ) {
+    return get_category(shipping_address);
+  }
+  if (billing_address) {
+    return get_category(billing_address);
+  }
+
+  return _tax_category;
+}
 
 async function get_contact_details({ contact }) {
   const doc = (await db.table('Contact').get(contact)) || {};
