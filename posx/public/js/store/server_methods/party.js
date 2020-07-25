@@ -2,6 +2,7 @@ import * as R from 'ramda';
 
 import db from '../db';
 import { set_taxes } from './taxes_and_charges';
+import { get_addresses } from './address';
 
 export async function erpnext__accounts__party__get_party_account(args) {
   const message = await get_party_account(args);
@@ -112,6 +113,17 @@ async function get_party_details({
     get_tax_category(customer_address),
   ]);
 
+  const taxes_and_charges = await set_taxes({
+    party,
+    party_type,
+    posting_date,
+    company,
+    // customer_group = null,
+    tax_category,
+    billing_address: customer_address,
+    shipping_address,
+  });
+
   return {
     customer: party,
     debit_to,
@@ -150,8 +162,7 @@ async function get_party_details({
       {}
     ),
 
-    // upstream: set by setup_taxes which in turn search in Tax Rule
-    taxes_and_charges: null,
+    taxes_and_charges,
 
     // upstream: set by get_pyt_term_template
     // here: assume payment is not deferred
@@ -194,36 +205,9 @@ async function get_default_address({
   name,
   sort_key = 'is_primary_address',
 }) {
-  if (!['is_shipping_address', 'is_primary_address'].includes(sort_key)) {
-    return null;
-  }
-
-  const links = await db
-    .table('Dynamic Link')
-    .where('link_name')
-    .equals(name)
-    .and((x) => x.link_doctype === doctype && x.parenttype === 'Address')
-    .toArray()
-    .then((x) => x.map((y) => y.parent));
-  if (links.length === 0) {
-    return null;
-  }
-
-  const sort_addresses = R.compose(
-    R.head,
-    R.reverse,
-    R.sortBy(R.prop(sort_key))
-  );
-  const address = await db
-    .table('Address')
-    .where('name')
-    .anyOf(links)
-    .toArray()
-    .then(sort_addresses);
-  if (address) {
-    return address.name;
-  }
-  return null;
+  return get_addresses({ doctype, name, sort_key })
+    .then(R.map(R.prop('name')))
+    .then(R.head);
 }
 
 async function get_address_tax_category({
