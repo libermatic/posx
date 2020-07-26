@@ -1,13 +1,12 @@
 import makeExtension from '../utils/make-extension';
 
-function get_enable_xz_report(pos_profile) {
-  return frappe.db
-    .get_value('POS Profile', pos_profile, 'px_enable_xz_report')
-    .then(({ message = {} }) => Boolean(message.px_enable_xz_report));
-}
-
 export async function get_xz_report(pos_profile, company) {
-  const enable_xz_report = await get_enable_xz_report(pos_profile);
+  const { message: { px_enable_xz_report: enable_xz_report } = {} } =
+    (await frappe.db.get_value(
+      'POS Profile',
+      pos_profile,
+      'px_enable_xz_report'
+    )) || {};
 
   if (!enable_xz_report) {
     return null;
@@ -74,10 +73,7 @@ export default function xz_report(Pos) {
     class PosWithXzReport extends Pos {
       async set_pos_profile_data() {
         const result = await super.set_pos_profile_data();
-        const enable_xz_report = await get_enable_xz_report(
-          this.frm.doc.pos_profile
-        );
-        if (enable_xz_report) {
+        if (this.frm.config.px_enable_xz_report) {
           this._update_menu();
         }
         return result;

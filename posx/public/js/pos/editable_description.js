@@ -6,24 +6,14 @@ export default function editable_description(Pos) {
     class PosWithEditableDescription extends Pos {
       make_cart() {
         super.make_cart();
-        frappe.db
-          .get_value(
-            'POS Profile',
-            this.frm.doc.pos_profile,
-            'px_can_edit_desc'
-          )
-          .then(
-            ({ message = {} }) =>
-              message.px_can_edit_desc &&
-              this._make_editable_description_action()
-          );
+        if (this.frm.config.px_can_edit_desc) {
+          this._make_editable_description_action();
+        }
       }
       _make_editable_description_action() {
-        $(`
-            <div style="margin-bottom: 1em;">
-                <button class="btn btn-xs px-edit-desc">Edit Description</buton>
-            </div>
-        `).insertAfter(this.wrapper.find('.cart-wrapper'));
+        this.$px_actions.append(`
+          <button class="btn btn-xs px-edit-desc">Edit Description</buton>
+        `);
         this.cart.wrapper.find('.px-edit-desc').on('click', () => {
           const $selected = this.cart.wrapper.find('.list-item.current-item');
           const item_code =
