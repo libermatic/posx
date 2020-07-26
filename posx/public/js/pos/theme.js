@@ -6,19 +6,14 @@ export default function theme(Pos) {
     class PosWithTheme extends Pos {
       async set_pos_profile_data() {
         const result = await super.set_pos_profile_data();
-        await load_theme(this.frm.doc.pos_profile);
+        await load_theme(this.frm.config.px_theme);
         return result;
       }
     }
   );
 }
 
-async function load_theme(pos_profile) {
-  const { message: { px_theme: theme } = {} } = await frappe.db.get_value(
-    'POS Profile',
-    pos_profile,
-    'px_theme'
-  );
+async function load_theme(theme) {
   if (!theme) {
     return;
   }

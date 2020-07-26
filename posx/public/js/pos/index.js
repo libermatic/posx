@@ -1,3 +1,4 @@
+import base from './base';
 import fixed_batch_selection from './fixed_batch_selection';
 import batch_price from './batch_price';
 import xz_report from './xz_report';
@@ -16,6 +17,7 @@ export const pageOverrides = [
   batch_price,
   fixed_batch_selection,
   editable_description,
+  base,
 ];
 
 export const paymentOverrides = [disabled_write_off];

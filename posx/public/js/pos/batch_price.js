@@ -48,7 +48,9 @@ export default function batch_price(Pos) {
     class PosWithBatchPrice extends Pos {
       async set_pos_profile_data() {
         const result = await super.set_pos_profile_data();
-        await set_batch_price_flag(this.frm.doc.pos_profile);
+        frappe.flags.use_batch_price = Boolean(
+          this.frm.config.px_use_batch_price
+        );
         return result;
       }
       async update_item_in_frm(item, field, value) {
