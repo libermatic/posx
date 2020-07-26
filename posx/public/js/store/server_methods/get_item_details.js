@@ -7,15 +7,7 @@ import logger from '../../utils/logger';
 export async function erpnext__stock__get_item_details__apply_price_list({
   args: _args,
   as_doc = false,
-}) {
-  if (as_doc) {
-    return;
-  }
-  const args = JSON.parse(_args);
-  const parent = await getCurrencyAndConversion(args);
-  const children = await getChildrenWithPriceDetails(args, parent);
-  return { message: { parent, children } };
-}
+}) {}
 
 export async function erpnext__stock__get_item_details__get_item_details({
   args,
@@ -63,7 +55,7 @@ async function getCurrencyAndConversion({
 async function getChildrenWithPriceDetails(args, parent) {
   return Promise.all(
     args.items.map(async function (x) {
-      const price_list_rate = await getPriceListRate({
+      const price_list_rate = await get_price_list_rate({
         ...R.pick(['uom', 'conversion_factor', 'item_code', 'stock_uom'], x),
         ...R.pick(['customer', 'price_list', 'transaction_date'], args),
         ...R.pick(['price_list_uom_dependant'], parent),
