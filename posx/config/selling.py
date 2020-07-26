@@ -20,8 +20,8 @@ def get_data():
             "items": [
                 {
                     "type": "doctype",
-                    "name": "X POS Settings",
-                    "label": frappe._("X POS Settings"),
+                    "name": "POS X Settings",
+                    "label": frappe._("POS X Settings"),
                     "description": frappe._("Extended POS settings"),
                     "settings": 1,
                 }
