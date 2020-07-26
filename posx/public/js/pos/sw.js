@@ -5,6 +5,7 @@ import {
   set_session_state,
   cache_settings,
   update_qtys,
+  clear_store,
 } from '../store';
 
 export default function sw(Pos) {
@@ -53,6 +54,7 @@ export default function sw(Pos) {
                 window.location.reload(true);
               }
             ),
+          onUnregister: clear_store,
         });
       }
       _sync_datastore({ warehouse }) {
@@ -80,7 +82,7 @@ export default function sw(Pos) {
   );
 }
 
-async function handle_sw(shouldInstall, { onUpdate }) {
+async function handle_sw(shouldInstall, { onUpdate, onUnregister }) {
   if ('serviceWorker' in navigator) {
     if (shouldInstall) {
       navigator.serviceWorker
@@ -109,7 +111,7 @@ async function handle_sw(shouldInstall, { onUpdate }) {
     } else {
       navigator.serviceWorker.ready
         .then((registration) => {
-          registration.unregister();
+          registration.unregister().then(onUnregister);
         })
         .catch((error) => {
           console.error(error.message);

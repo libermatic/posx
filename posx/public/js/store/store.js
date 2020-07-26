@@ -18,3 +18,7 @@ export async function update_qtys({ pos_profile, items }) {
     )
   );
 }
+
+export async function clear_store() {
+  return db.delete();
+}
