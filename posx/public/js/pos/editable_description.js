@@ -14,7 +14,7 @@ export default function editable_description(Pos) {
         this.$px_actions.append(`
           <button class="btn btn-xs px-edit-desc">Edit Description</buton>
         `);
-        this.cart.wrapper.find('.px-edit-desc').on('click', () => {
+        this.$px_actions.find('.px-edit-desc').on('click', () => {
           const $selected = this.cart.wrapper.find('.list-item.current-item');
           const item_code =
             $selected.attr('data-item-code') &&

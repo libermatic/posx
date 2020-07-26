@@ -7,6 +7,7 @@ import disabled_write_off from './disabled_write_off';
 import theme from './theme';
 import sw from './sw';
 import stats from './stats';
+import local_draft from './local_draft';
 import editable_description from './editable_description';
 import hide_cart_numpad from './hide_cart_numpad';
 import hide_payment_numpad from './hide_payment_numpad';
@@ -16,6 +17,7 @@ import hide_payment_numpad from './hide_payment_numpad';
 
 export const pageOverrides = [
   stats,
+  local_draft,
   sw,
   theme,
   shortcuts,
