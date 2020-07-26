@@ -6,6 +6,8 @@ import shortcuts from './shortcuts';
 import disabled_write_off from './disabled_write_off';
 import theme from './theme';
 import editable_description from './editable_description';
+import hide_cart_numpad from './hide_cart_numpad';
+import hide_payment_numpad from './hide_payment_numpad';
 
 // compose applies functions from right to left
 // place extensions that need to run first in the end
@@ -20,4 +22,6 @@ export const pageOverrides = [
   base,
 ];
 
-export const paymentOverrides = [disabled_write_off];
+export const cartOverrides = [hide_cart_numpad];
+
+export const paymentOverrides = [hide_payment_numpad, disabled_write_off];

@@ -1,9 +1,10 @@
 import { compose } from 'ramda';
 
-import { pageOverrides, paymentOverrides } from '../pos';
+import { pageOverrides, cartOverrides, paymentOverrides } from '../pos';
 
 const pos = {
   page: compose(...pageOverrides),
+  cart: compose(...cartOverrides),
   payment: compose(...paymentOverrides),
 };
 

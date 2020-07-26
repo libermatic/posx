@@ -7,6 +7,7 @@ const FIELDS = [
   'px_use_batch_price',
   'px_can_edit_desc',
   'px_disabled_write_off',
+  'px_hide_numpads',
 ];
 
 export default function base(Pos) {
