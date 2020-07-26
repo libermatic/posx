@@ -30,7 +30,7 @@ export default function sw(Pos) {
         ]);
         this._use_local_datastore = Boolean(px_use_local_datastore);
         if (this._use_local_datastore) {
-          pull_entities().then(pull_stock_qtys({ warehouse }));
+          this._sync_datastore({ warehouse });
           set_session_state({
             user: frappe.session.user,
             pos_profile,
@@ -48,6 +48,27 @@ export default function sw(Pos) {
               }
             ),
         });
+      }
+      _sync_datastore({ warehouse }) {
+        const poll_duration = 1000 * 60 * 30;
+        if (this._use_local_datastore && warehouse) {
+          const [route] = frappe.get_route();
+          if (route === 'point-of-sale') {
+            pull_entities()
+              .then(pull_stock_qtys({ warehouse }))
+              .finally(() =>
+                setTimeout(
+                  () => this._sync_datastore({ warehouse }),
+                  poll_duration
+                )
+              );
+          } else {
+            setTimeout(
+              () => this._sync_datastore({ warehouse }),
+              poll_duration
+            );
+          }
+        }
       }
     }
   );
