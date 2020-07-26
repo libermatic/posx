@@ -7,3 +7,4 @@ export * from './pricing_rule';
 export * from './batch';
 export * from './taxes_and_charges';
 export * from './address';
+export * from './item';
