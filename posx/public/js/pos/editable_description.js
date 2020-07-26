@@ -11,11 +11,9 @@ export default function editable_description(Pos) {
         }
       }
       _make_editable_description_action() {
-        $(`
-            <div style="margin-bottom: 1em;">
-                <button class="btn btn-xs px-edit-desc">Edit Description</buton>
-            </div>
-        `).insertAfter(this.wrapper.find('.cart-wrapper'));
+        this.$px_actions.append(`
+          <button class="btn btn-xs px-edit-desc">Edit Description</buton>
+        `);
         this.cart.wrapper.find('.px-edit-desc').on('click', () => {
           const $selected = this.cart.wrapper.find('.list-item.current-item');
           const item_code =

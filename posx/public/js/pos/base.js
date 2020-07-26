@@ -31,6 +31,14 @@ export default function base(Pos) {
         }
         return result;
       }
+
+      make_cart() {
+        super.make_cart();
+        $(`<div class="px-actions" style="margin-bottom: 1em;" />`).insertAfter(
+          this.wrapper.find('.cart-wrapper')
+        );
+        this.$px_actions = this.wrapper.find('.px-actions');
+      }
     }
   );
 }
