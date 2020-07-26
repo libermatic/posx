@@ -1,3 +1,7 @@
+import * as R from 'ramda';
+
+import db from '../db';
+
 export function get_filters(filters) {
   try {
     return { filters: JSON.parse(filters) };
@@ -18,4 +22,22 @@ export function get_fields(fieldname) {
     }
     throw error;
   }
+}
+
+export async function getAncestors(doctype, name) {
+  const { lft, rgt } = await db.table(doctype).get(name);
+  return db
+    .table(doctype)
+    .filter((x) => x.lft <= lft && x.rgt >= rgt)
+    .toArray()
+    .then(R.map(R.prop('name')));
+}
+
+export async function getDescendents(doctype, name) {
+  const { lft, rgt } = await db.table(doctype).get(name);
+  return db
+    .table(doctype)
+    .filter((x) => x.lft >= lft && x.rgt <= rgt)
+    .toArray()
+    .then(R.map(R.prop('name')));
 }
