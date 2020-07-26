@@ -17,13 +17,10 @@ function showStats() {
   };
 }
 
-export default function base(Pos) {
+export default function stats(Pos) {
   return makeExtension(
     'stats',
     class PosWithStats extends Pos {
-      constructor(wrapper) {
-        super(wrapper);
-      }
       prepare_menu() {
         super.prepare_menu();
         this.page.add_menu_item(__('Stats'), showStats);
