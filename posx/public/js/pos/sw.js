@@ -1,11 +1,11 @@
 import makeExtension from '../utils/make-extension';
 import {
   pull_entities,
+  clear_entities,
   pull_stock_qtys,
   set_session_state,
   cache_settings,
   update_qtys,
-  clear_store,
 } from '../store';
 
 export default function sw(Pos) {
@@ -54,7 +54,7 @@ export default function sw(Pos) {
                 window.location.reload(true);
               }
             ),
-          onUnregister: clear_store,
+          onUnregister: clear_entities,
         });
       }
       _sync_datastore({ warehouse }) {

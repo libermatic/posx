@@ -9,6 +9,17 @@ export async function pull_entities() {
   return Promise.all(ENTITIES.map(make_request()));
 }
 
+export async function clear_entities() {
+  const omit = ['session_state', 'settings', 'draft_invoices'];
+  return Promise.all(
+    db.tables.map((x) => {
+      if (!omit.includes(x.name)) {
+        return x.clear();
+      }
+    })
+  );
+}
+
 function make_request() {
   const start_time = frappe.datetime.get_datetime_as_string();
   return async function request({
@@ -135,28 +146,21 @@ export function pull_stock_qtys({ warehouse }) {
   };
 }
 
-export async function set_session_state(args) {
-  return db.session_state.bulkPut(
-    Object.keys(args).map((key) => ({ key, value: args[key] }))
-  );
-}
-
-export async function cache_settings() {
-  const entities = [
-    {
-      doctype: 'Accounts Settings',
-      fields: ['determine_address_tax_category_from'],
-    },
-  ];
-
+export async function update_qtys({ pos_profile, items }) {
+  const { warehouse } = await db.table('POS Profile').get(pos_profile);
   return Promise.all(
-    entities.map(({ doctype, fields }) =>
-      frappe
-        .call({
-          method: 'posx.api.pos.get_settings',
-          args: { doctype, fields },
-        })
-        .then(({ message }) => db.settings.put({ doctype, ...message }))
+    items.map(({ item_code, batch_no, qty }) =>
+      Promise.all([
+        db.item_stock
+          .where({ item_code, warehouse })
+          .first()
+          .then((x) => db.item_stock.put({ ...x, qty: x.qty - qty })),
+        batch_no &&
+          db.batch_stock
+            .where({ batch_no, warehouse })
+            .first()
+            .then((x) => db.batch_stock.put({ ...x, qty: x.qty - qty })),
+      ])
     )
   );
 }
