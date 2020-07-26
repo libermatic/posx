@@ -28,15 +28,9 @@ export default function sw(Pos) {
       }
 
       async _setup_datastore() {
+        const { px_use_local_datastore, warehouse } = this.frm.config;
         const { pos_profile } = this.frm.doc;
-        const {
-          message: { px_use_local_datastore, warehouse } = {},
-        } = await frappe.db.get_value('POS Profile', pos_profile, [
-          'px_use_local_datastore',
-          'warehouse',
-        ]);
-        this._use_local_datastore = Boolean(px_use_local_datastore);
-        if (this._use_local_datastore) {
+        if (px_use_local_datastore) {
           this._sync_datastore({ warehouse });
           set_session_state({
             user: frappe.session.user,
@@ -45,7 +39,7 @@ export default function sw(Pos) {
           });
           cache_settings();
         }
-        handle_sw(this._use_local_datastore, {
+        handle_sw(Boolean(px_use_local_datastore), {
           onUpdate: (registration) =>
             frappe.confirm(
               'Application has updated in the background. Do you want to reload?',
@@ -59,7 +53,7 @@ export default function sw(Pos) {
       }
       _sync_datastore({ warehouse }) {
         const poll_duration = 1000 * 60 * 30;
-        if (this._use_local_datastore && warehouse) {
+        if (this.frm.config.px_use_local_datastore && warehouse) {
           const [route] = frappe.get_route();
           if (route === 'point-of-sale') {
             pull_entities()
