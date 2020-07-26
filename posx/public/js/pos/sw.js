@@ -4,6 +4,7 @@ import {
   pull_stock_qtys,
   set_session_state,
   cache_settings,
+  update_qtys,
 } from '../store';
 
 export default function sw(Pos) {
@@ -20,6 +21,11 @@ export default function sw(Pos) {
         this._setup_datastore();
         return result;
       }
+      submit_sales_invoice() {
+        update_qtys(this.frm.doc);
+        super.submit_sales_invoice();
+      }
+
       async _setup_datastore() {
         const { pos_profile } = this.frm.doc;
         const {
