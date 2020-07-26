@@ -3,8 +3,6 @@ import {
   pull_entities,
   clear_entities,
   pull_stock_qtys,
-  set_session_state,
-  cache_settings,
   update_qtys,
 } from '../store';
 
@@ -29,15 +27,8 @@ export default function sw(Pos) {
 
       async _setup_datastore() {
         const { px_use_local_datastore, warehouse } = this.frm.config;
-        const { pos_profile } = this.frm.doc;
         if (px_use_local_datastore) {
           this._sync_datastore({ warehouse });
-          set_session_state({
-            user: frappe.session.user,
-            pos_profile,
-            warehouse,
-          });
-          cache_settings();
         }
         handle_sw(Boolean(px_use_local_datastore), {
           onUpdate: (registration) =>
