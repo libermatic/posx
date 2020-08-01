@@ -90,7 +90,7 @@ async function get_regional_address_details({
       (await db.table('POS Profile').get(pos_profile)) || {};
 
     const taxes = await get_taxes_and_charges({
-      master_doctype,
+      master_doctype: 'Sales Taxes and Charges Template',
       master_name: taxes_and_charges,
     });
     return { party_details, place_of_supply, taxes_and_charges, taxes };
