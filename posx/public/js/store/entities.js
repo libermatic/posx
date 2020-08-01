@@ -761,4 +761,27 @@ export const ENTITIES = [
     ],
     get_filters: () => ({ is_default: 1 }),
   },
+  {
+    doctype: 'Loyalty Program',
+    fields: [
+      'loyalty_program_name',
+      'loyalty_program_type',
+      'from_date',
+      'to_date',
+      'customer_group',
+      'customer_territory',
+      'auto_opt_in',
+      'conversion_factor',
+      'expiry_duration',
+      'expense_account',
+      'company',
+      'cost_center',
+    ],
+    children: [
+      {
+        doctype: 'Loyalty Program Collection',
+        fields: ['tier_name', 'min_spent', 'collection_factor'],
+      },
+    ],
+  },
 ];
