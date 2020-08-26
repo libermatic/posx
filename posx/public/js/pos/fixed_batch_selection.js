@@ -56,6 +56,9 @@ export default function fixed_batch_selection(Pos) {
       }
 
       _should_show_sb_selector(item, update_qty) {
+        if (update_qty === 0) {
+          return false;
+        }
         if (item.has_serial_no) {
           return true;
         }
