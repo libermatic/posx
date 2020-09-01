@@ -4,6 +4,7 @@ import frappe
 from toolz.curried import compose, groupby, valmap, first
 
 
+@frappe.whitelist()
 def get_batch_no(doctype, txt, searchfield, start, page_len, filters):
     from erpnext.controllers.queries import get_batch_no
 
