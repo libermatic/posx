@@ -19,7 +19,7 @@ function getModelSchema() {
 
 const db = new Dexie('posx');
 
-db.version(1).stores({
+db.version(2).stores({
   session_state: 'key',
   settings: 'doctype',
   draft_invoices: 'offline_pos_name',
