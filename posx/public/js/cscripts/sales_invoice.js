@@ -1,6 +1,5 @@
 import { get_xz_report } from '../pos/xz_report';
 import { set_batch_price, set_batch_price_flag } from '../pos/batch_price';
-import fix_scan_barcode from './common/fix_scan_barcode';
 
 function proxy_local_doc(doc) {
   locals[doc.doctype][doc.name] = new Proxy(locals[doc.doctype][doc.name], {
@@ -34,7 +33,6 @@ export function sales_invoice() {
         }
         frm.doc.items.forEach(proxy_local_doc);
       }
-      fix_scan_barcode(frm);
     },
     is_pos: async function (frm) {
       const { is_pos, company } = frm.doc;
