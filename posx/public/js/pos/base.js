@@ -12,6 +12,7 @@ const FIELDS = [
   'px_use_local_draft',
   'px_use_local_datastore',
   'px_hide_numpads',
+  'px_hide_modal',
 ];
 
 export default function base(Pos) {
