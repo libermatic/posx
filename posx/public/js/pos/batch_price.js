@@ -39,7 +39,7 @@ export async function set_batch_price(item) {
     },
   });
 
-  frappe.model.set_value(item.doctype, item.name, { price_list_rate });
+  return frappe.model.set_value(item.doctype, item.name, { price_list_rate });
 }
 
 export default function batch_price(Pos) {
@@ -53,12 +53,39 @@ export default function batch_price(Pos) {
         );
         return result;
       }
-      async update_item_in_frm(item, field, value) {
-        const result = await super.update_item_in_frm(item, field, value);
-        if (!['rate', 'discount_percentage'].includes(field)) {
+      async update_cart_data(item) {
+        if (item.has_batch_no) {
+          frappe.dom.freeze();
+
+          const { price_list_rate: prev } = item;
           await set_batch_price(item);
+          const { price_list_rate: curr } = item;
+
+          if (prev !== curr) {
+            const { batch_no } = item;
+            await this.frm.script_manager.trigger(
+              'qty',
+              item.doctype,
+              item.name
+            );
+
+            // reset batch_no as mentioned in fixed_batch_selection
+            await frappe.model.set_value(
+              item.doctype,
+              item.name,
+              'batch_no',
+              batch_no
+            );
+
+            // async on_qty_change is being called synchronously.
+            // therefore, subsequent post_qty_change renders total with stale value.
+            // so this will re-render with current values
+            this.post_qty_change(item);
+          }
+
+          frappe.dom.unfreeze();
         }
-        return result;
+        return super.update_cart_data(item);
       }
     }
   );

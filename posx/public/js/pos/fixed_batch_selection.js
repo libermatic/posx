@@ -45,6 +45,11 @@ export default function fixed_batch_selection(Pos) {
           'batch_no',
           batch_no
         );
+        return result;
+      }
+
+      async update_cart_data(item) {
+        const result = await super.update_cart_data(item);
 
         // cart_items are being rendered with prev batch_no, so changing batch
         // ends up with two rows in the render while model has correct values
