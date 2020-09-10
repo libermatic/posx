@@ -48,16 +48,17 @@ export default function fixed_batch_selection(Pos) {
         return result;
       }
 
-      async update_cart_data(item) {
-        const result = await super.update_cart_data(item);
-
+      post_qty_change(item) {
+        super.post_qty_change(item);
         // cart_items are being rendered with prev batch_no, so changing batch
         // ends up with two rows in the render while model has correct values
         this.cart.$cart_items.empty();
         this.cart.$cart_items.append(
           this.frm.doc.items.map(this.cart.get_item_html.bind(this.cart))
         );
-        return result;
+
+        // rescroll to the last item because the cart_items were cleared
+        this.cart.scroll_to_item(item.item_code);
       }
 
       _should_show_sb_selector(item, update_qty) {
