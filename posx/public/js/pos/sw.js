@@ -21,7 +21,9 @@ export default function sw(Pos) {
         return result;
       }
       submit_sales_invoice() {
-        update_qtys(this.frm.doc);
+        if (this.frm.config.px_use_local_datastore) {
+          update_qtys(this.frm.doc);
+        }
         super.submit_sales_invoice();
       }
 
