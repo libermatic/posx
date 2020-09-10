@@ -9,12 +9,16 @@ export default function submit_and_print(Pos) {
         if (!this.frm.config.px_hide_modal) {
           super.submit_sales_invoice();
         } else {
-          const { doc } = await this._handle_savesubmit();
-          this.frm.doc.docstatus = doc.docstatus;
-          frappe.show_alert({
-            indicator: 'green',
-            message: __(`Sales invoice ${doc.name} created succesfully`),
-          });
+          try {
+            const { doc } = await this._handle_savesubmit();
+            this.frm.doc.docstatus = doc.docstatus;
+            frappe.show_alert({
+              indicator: 'green',
+              message: __(`Sales invoice ${doc.name} created succesfully`),
+            });
+          } catch (error) {
+            frappe.throw('Something happened!');
+          }
           this.toggle_editing();
           this.set_form_action();
           const frm = clone(this.frm);
@@ -27,30 +31,18 @@ export default function submit_and_print(Pos) {
         this.frm.validate_form_action('Submit');
         frappe.validated = true;
         await this.frm.script_manager.trigger('before_submit');
-        if (!frappe.validated) {
-          return this.frm.handle_save_fail();
-        }
-        try {
-          return new Promise((resolve, reject) => {
-            this.frm.save(
-              'Submit',
-              ({ exc }) => {
-                if (exc) {
-                  reject();
-                } else {
-                  frappe.utils.play_sound('submit');
-                  this.frm.script_manager
-                    .trigger('on_submit')
-                    .then(() => resolve(this.frm));
-                }
-              },
-              undefined,
-              reject
-            );
+        return new Promise((resolve, reject) => {
+          this.frm.save('Submit', (r) => {
+            if (r.exc) {
+              reject(r);
+            } else {
+              frappe.utils.play_sound('submit');
+              this.frm.script_manager
+                .trigger('on_submit')
+                .then(() => resolve(this.frm));
+            }
           });
-        } catch (error) {
-          return this.frm.handle_save_fail();
-        }
+        });
       }
     }
   );
