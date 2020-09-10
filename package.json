@@ -1,6 +1,6 @@
 {
   "name": "posx",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "ERPNext POS Extended",
   "main": "posx/public/js/index.js",
   "scripts": {
