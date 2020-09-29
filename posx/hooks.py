@@ -108,6 +108,7 @@ doc_events = {
     "Purchase Invoice": {
         "before_validate": "posx.doc_events.purchase_invoice.before_validate",
     },
+    "Stock Entry": {"before_validate": "posx.doc_events.stock_entry.before_validate"},
 }
 
 # Scheduled Tasks
