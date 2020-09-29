@@ -26,6 +26,7 @@ fixtures = [
                     "Payment Entry",
                     "Purchase Invoice Item",
                     "Purchase Receipt Item",
+                    "Stock Entry Detail",
                 ],
             ),
         },
