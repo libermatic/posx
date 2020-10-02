@@ -17,7 +17,7 @@ def get_item_details(item_code, batch_no=None, price_list=None):
 def _get_price(item_code, batch_no, price_list):
     if batch_no:
         batch_price_list_rate = frappe.get_cached_value(
-            "Batch", batch_no, "px_batch_price_list_rate"
+            "Batch", batch_no, "px_price_list_rate"
         )
         if batch_price_list_rate:
             return batch_price_list_rate
