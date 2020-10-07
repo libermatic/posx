@@ -98,20 +98,20 @@ class XZReport(Document):
         get_payout_amount = partial(get_mop_amount, payments=payout_payments)
 
         def make_payment(mode_of_payment):
-            sales_amount = get_sales_amount(mode_of_payment)
-            returns_amount = get_returns_amount(mode_of_payment)
-            payin_amount = get_payin_amount(mode_of_payment)
-            payout_amount = get_payout_amount(mode_of_payment)
+            sales = get_sales_amount(mode_of_payment)
+            returns = get_returns_amount(mode_of_payment)
+            payins = get_payin_amount(mode_of_payment)
+            payouts = get_payout_amount(mode_of_payment)
             return {
                 "mode_of_payment": mode_of_payment,
-                "sales_amount": sales_amount,
-                "returns_amount": returns_amount,
-                "payin_amount": payin_amount,
-                "payout_amount": payout_amount,
-                "total_amount": sales_amount
-                + returns_amount
-                + payin_amount
-                + payout_amount,
+                "type": frappe.get_cached_value(
+                    "Mode of Payment", mode_of_payment, "type"
+                ),
+                "sales": sales,
+                "returns": returns,
+                "payins": payins,
+                "payouts": payouts,
+                "total": sales + returns + payins + payouts,
             }
 
         sum_by_total = sumby("total")
@@ -252,12 +252,14 @@ def _get_pe_payments(args):
         SELECT
             pe.mode_of_payment,
             mop.type,
-            SUM(pe.paid_amount) AS amount
+            SUM(
+                IF(pe.payment_type = 'Receive', pe.paid_amount, -1 * pe.paid_amount)
+            ) AS amount
         FROM `tabPayment Entry` AS pe
         LEFT JOIN `tabMode of Payment` AS mop
             ON mop.name = pe.mode_of_payment
         WHERE pe.docstatus = 1 AND
-            pe.payment_type = %(payment_type)s AND
+            pe.payment_type IN %(payment_types)s AND
             pe.company = %(company)s AND
             pe.owner = %(user)s AND
             TIMESTAMP(pe.posting_date, pe.px_posting_time)
@@ -265,9 +267,11 @@ def _get_pe_payments(args):
         GROUP BY mode_of_payment
     """
     payin_payments = frappe.db.sql(
-        query, values=merge(args, {"payment_type": "Receive"}), as_dict=1,
+        query, values=merge(args, {"payment_types": ["Receive"]}), as_dict=1,
     )
     payout_payments = frappe.db.sql(
-        query, values=merge(args, {"payment_type": "Pay"}), as_dict=1,
+        query,
+        values=merge(args, {"payment_types": ["Pay", "Internal Transfer"]}),
+        as_dict=1,
     )
     return payin_payments, payout_payments
