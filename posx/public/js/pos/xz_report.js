@@ -74,6 +74,8 @@ export default function xz_report(Pos) {
       async set_pos_profile_data() {
         const result = await super.set_pos_profile_data();
         if (this.frm.config.px_enable_xz_report) {
+          const { pos_profile, company } = this.frm.doc;
+          get_xz_report(pos_profile, company);
           this._update_menu();
         }
         return result;

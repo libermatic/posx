@@ -56,7 +56,12 @@ export function sales_invoice() {
       const { pos_profile, company } = frm.doc;
       if (pos_profile) {
         set_batch_price_flag(pos_profile);
-        get_xz_report(pos_profile, company);
+
+        // hack to prevent multiple dialogs,
+        // because trigger does not run when pos page is refreshed
+        if (!frappe.get_route_str().includes('point-of-sale')) {
+          get_xz_report(pos_profile, company);
+        }
       }
     },
   };
