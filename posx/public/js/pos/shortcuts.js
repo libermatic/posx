@@ -110,7 +110,12 @@ export default function shortcuts(Pos) {
           if ($current_item.length) {
             const item_code = $current_item.data('item-code');
             const batch_no = $current_item.data('batch-no');
-            this.update_item_in_cart(item_code, 'qty', 0, batch_no);
+            this.update_item_in_cart(
+              decodeURIComponent(item_code || ''),
+              'qty',
+              0,
+              decodeURIComponent(batch_no || '')
+            );
           }
         };
 
