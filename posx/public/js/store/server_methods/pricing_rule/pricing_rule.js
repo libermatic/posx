@@ -2,7 +2,6 @@ import * as R from 'ramda';
 
 import logger from '../../../utils/logger';
 import db from '../../db';
-import { get_conversion_factor } from '../get_item_details';
 import { ValidationError } from '../../../utils/exceptions.js';
 import {
   get_pricing_rules,
@@ -32,7 +31,7 @@ async function get_pricing_rule_for_item(args, doc, for_validate = false) {
     return {};
   }
 
-  const initial = {
+  let item_details = {
     ...R.pick(
       ['doctype', 'name', 'parent', 'parenttype', 'child_docname'],
       args
@@ -45,125 +44,97 @@ async function get_pricing_rule_for_item(args, doc, for_validate = false) {
     // upstream: checks if doc exists in db
     // maybe the conditional below is not required because all docs will be client
     // docs anyways
-    const { pricing_rules, item_code } = args;
     if (pricing_rules) {
-      return remove_pricing_rule_for_item(pricing_rules, initial, item_code);
-    }
-    return initial;
-  }
-
-  async function getValue(doctype, name, field) {
-    if (others[field]) {
-      return others[field];
-    }
-    return db.table(doctype).get(name).then(R.prop(field));
-  }
-
-  const [item_group, brand, customer_group, territory] = await Promise.all([
-    ...['item_group', 'brand'].map((field) =>
-      getValue('Item', item_code, field)
-    ),
-    ...['customer_group', 'territory'].map((field) =>
-      getValue('Customer', customer, field)
-    ),
-  ]);
-
-  const _pricing_rules = await (for_validate && pricing_rules
-    ? get_applied_pricing_rules({ pricing_rules: pricing_rules })
-    : get_pricing_rules(
-        {
-          item_code,
-          item_group,
-          brand,
-          price_list,
-          warehouse,
-          company,
-          customer,
-          customer_group,
-          territory,
-          campaign,
-          sales_partner,
-          transaction_date,
-        },
-        doc
-      ));
-
-  async function get_mixed_or_other(pr) {
-    if (pr.mixed_conditions || pr.apply_rule_on_other) {
-      const apply_rule_on_other_items = await get_pricing_rule_items(pr).then(
-        JSON.stringify
+      return remove_pricing_rule_for_item(
+        args.pricing_rules,
+        item_details,
+        args.item_code
       );
-      const apply_rule_on = pr.apply_rule_on_other
-        ? snakeCase(pr.apply_rule_on_other)
-        : snakeCase(pr.apply_on);
-      return {
-        apply_rule_on_other_items,
-        price_or_product_discount: pr.price_or_product_discount,
-        apply_rule_on,
-      };
     }
-    return {};
+    return item_details;
   }
 
-  const filtered_prs = _pricing_rules.filter((x) => !!x && !x.suggestion);
-  if (filtered_prs.length === 0 && pricing_rules) {
-    console.log('>> ', filtered_prs, pricing_rules);
+  const updated_args = update_args_for_pricing_rule(args);
 
-    return remove_pricing_rule_for_item(pricing_rules, initial, item_code);
-  }
+  const pricing_rules =
+    for_validate && updated_args.pricing_rules
+      ? get_applied_pricing_rules(updated_args.pricing_rules)
+      : get_pricing_rules(updated_args, doc);
 
-  const coupon_code_pr = filtered_prs.find(
-    (x) => x.coupon_code_based === 1 && !coupon_code
-  );
-  if (coupon_code_pr) {
-    const {
-      validate_applied_rule = 0,
-      price_or_product_discount,
-    } = coupon_code_pr;
-    const mixed_or_other = await get_mixed_or_other(pr);
-    return {
-      ...initial,
-      ...mixed_or_other,
-      validate_applied_rule,
-      price_or_product_discount,
-    };
-  }
-
-  const discount_prs = filtered_prs
-    .filter((x) => !x.validate_applied_rule)
-    .map((pr) => {
-      if (pr.price_or_product_discount === 'Price') {
-        return apply_price_discount_rule(pr, { currency, conversion_factor });
+  if (pricing_rules.length > 0) {
+    let rules = [];
+    for (const _pricing_rule of pricing_rules) {
+      if (!_pricing_rule) {
+        continue;
       }
-      return get_product_discount_rule(pr);
-    });
-  const filter_discount_fields = (field, prs) =>
-    prs.map((x) => x[field]).filter((x) => !!x);
-  const get_free_fields = (prs) =>
-    R.tail(prs.filter((x) => !!x.free_item_data)) || {};
+      let pricing_rule =
+        typeof _pricing_rule === 'string'
+          ? await db.table('Pricing Rule').get(_pricing_rule)
+          : pricing_rule;
 
-  function get_other_props(prs) {
-    if (prs.length > 0) {
-      return {
-        has_pricing_rule: 1,
-        pricing_rules: prs.map((x) => x.name).join(','),
+      pricing_rule.apply_rule_on_other_items = get_pricing_rule_items(
+        pricing_rule
+      );
+      if (pricing_rule.suggestion) {
+        continue;
+      }
+
+      item_details = {
+        ...item_details,
+        validate_applied_rule: pricing_rule.validate_applied_rule || 0,
+        price_or_product_discount: pricing_rule.price_or_product_discount,
       };
+
+      rules = [...rules, get_pricing_rule_details(args, pricing_rule)];
+      if (pricing_rule.mixed_conditions || pricing_rule.apply_rule_on_other) {
+        item_details = {
+          ...item_details,
+          apply_rule_on_other_items: JSON.stringify(
+            pricing_rule.apply_rule_on_other_items
+          ),
+          price_or_product_discount: pricing_rule.price_or_product_discount,
+          apply_rule_on: pricing_rule.apply_rule_on_other
+            ? snakeCase(pricing_rule.apply_rule_on_other)
+            : snakeCase(pricing_rule.apply_on),
+        };
+      }
+
+      if (pricing_rule.coupon_code_based === 1 && !args.coupon_code) {
+        return item_details;
+      }
+
+      if (!pricing_rule.validate_applied_rule) {
+        if (pricing_rule.price_or_product_discount === 'Price') {
+          item_details = {
+            ...item_details,
+            ...apply_price_discount_rule(pricing_rule, item_details, args),
+          };
+        }
+      } else {
+        item_details = {
+          ...item_details,
+          ...get_product_discount_rule(pricing_rule, item_details, args, doc),
+        };
+      }
     }
+    item_details = {
+      ...item_details,
+      has_pricing_rule: 1,
+      pricing_rules: JSON.stringify(rules.map(R.prop('pricing_rule'))),
+    };
+    if (!doc) {
+      return item_details;
+    }
+  } else if (args.pricing_rules) {
+    const removed = await remove_pricing_rule_for_item(
+      argspricing_rules,
+      item_details,
+      args.item_code
+    );
+    item_details = { ...item_details, ...removed };
   }
 
-  return {
-    ...initial,
-    discount_amount_on_rate: filter_discount_fields(
-      'discount_amount_on_rate',
-      discount_prs
-    ),
-    discount_percentage_on_rate: filter_discount_fields(
-      'discount_percentage_on_rate',
-      discount_prs
-    ),
-    ...get_free_fields(discount_prs),
-    ...get_other_props(discount_prs),
-  };
+  return item_details;
 }
 
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/pricing_rule.py#L371
@@ -213,139 +184,101 @@ async function remove_pricing_rule_for_item(
   }
 }
 
-function apply_price_discount_rule(pr, { currency, conversion_factor = 1 }) {
-  function getMarginProps() {
-    const { margin_type, margin_rate_or_amount } = pr;
-    return (margin_type === 'Amount' && pr.currency === currency) ||
-      margin_type === 'Percentage'
-      ? { margin_type, margin_rate_or_amount }
-      : { margin_type: null, margin_rate_or_amount: 0 };
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/pricing_rule.py#L293
+async function update_args_for_pricing_rule(args) {
+  let result = { ...args };
+  if (!(args.item_group && args.brand)) {
+    const { item_group, brand } =
+      (await db.table('Item').get(args.item_code)) || {};
+    result.item_group = item_group;
+    result.brand = brand;
+    if (!result.item_group) {
+      throw new ValidationError(
+        `Item Group not mentioned in item master for item ${args.item_code}`
+      );
+    }
   }
-  function getRateOrDiscountProps() {
-    if (pr.rate_or_discount === 'Rate') {
-      const rate = pr.currency === currency ? pr.rate : 0;
-      return {
-        price_list_rate: rate * conversion_factor,
-        discount_percentage: 0,
+
+  // upstream asks args.transaction_type == "selling". but assuming all transactions are sale here
+  // code for other transaction_type is omitted
+  if (args.customer && !(args.customer_group && args.territory)) {
+    const { customer_group, territory } =
+      args.quotation_to && args.quotation_to !== 'Customer'
+        ? {}
+        : (await db.table('Customer').get(args.customer)) || {};
+    result.customer_group = customer_group;
+    result.territory = territory;
+    result.supplier = null;
+    result.supplier_group = null;
+  }
+
+  return result;
+}
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/pricing_rule.py#L320
+function get_pricing_rule_details(args, pricing_rule) {
+  return {
+    pricing_rule: pricing_rule.name,
+    rate_or_discount: pricing_rule.rate_or_discount,
+    margin_type: pricing_rule.margin_type,
+    item_code: args.item_code,
+    child_docname: args.child_docname,
+  };
+}
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/pricing_rule.py#L329
+function apply_price_discount_rule(pricing_rule, item_details, args) {
+  let result = { rate_or_discount: pricing_rule.rate_or_discount };
+  if (
+    (pricing_rule.margin_type === 'Amount' &&
+      pricing_rule.currency === args.currency) ||
+    pricing_rule.margin_type === 'Percentage'
+  ) {
+    result = {
+      ...result,
+      ...R.pick(['margin_type', 'margin_rate_or_amount'], pricing_rule),
+    };
+  } else {
+    result = { ...result, margin_type: null, margin_rate_or_amount: 0 };
+  }
+
+  if (pricing_rule.rate_or_discount === 'Rate') {
+    const pricing_rule_rate =
+      pricing_rule.currency === args.currency ? pricing_rule.rate : 0;
+    result = {
+      ...result,
+      price_list_rate: pricing_rule_rate * (args.conversion_factor || 1),
+      discount_percentage: 0,
+    };
+  }
+
+  for (const apply_on of ['Discount Amount', 'Discount Percentage']) {
+    if (pricing_rule.rate_or_discount !== apply_on) {
+      continue;
+    }
+
+    const field = snakeCase(apply_on);
+    if (pricing_rule.apply_discount_on_rate) {
+      const discount_field = `${field}_on_rate`;
+      result = {
+        ...result,
+        [discount_field]: [
+          ...(result[discount_field] || item_details[discount_field]),
+          pricing_rule[field] || 0,
+        ],
+      };
+    } else {
+      if (!result.hasOwnProperty(field)) {
+        result = { ...result, [field]: item_details[field] || 0 };
+      }
+      result = {
+        ...result,
+        [field]:
+          result[field] +
+          (pricing_rule ? pricing_rule[field] || 0 : args[field] || 0),
       };
     }
-    const field = snakeCase(pr.rate_or_discount);
-    if (pr.apply_discount_on_rate) {
-      return { [`${field}_on_rate`]: pr[field] || 0 };
-    }
-    return { [field]: pr[field] || 0 };
   }
 
-  return {
-    pricing_rule_for: pr.rate_or_discount,
-    ...getMarginProps(),
-    ...getRateOrDiscountProps(),
-  };
-}
-
-async function get_product_discount_rule(
-  pr,
-  initial,
-  { item_code, company },
-  doc
-) {
-  const free_item = pr.same_item
-    ? initial.item_code || item_code
-    : pr.free_item;
-
-  if (!free_item) {
-    throw new ValidationError(
-      `Free item not set in the pricing rule ${pr.name}`
-    );
-  }
-
-  const {
-    item_name,
-    description,
-    stock_uom,
-    item_group,
-    brand,
-  } = await db.table('Item').get(free_item);
-  const uom = pr.free_item_uom || stock_uom;
-  const { conversion_factor = 1 } = await get_conversion_factor({
-    item_code: free_item,
-    uom,
-  });
-
-  async function getDefaultIncomeAccount() {
-    const _company = company || doc.company;
-    const getDefault = (doctype, name) =>
-      db
-        .get('Item Default')
-        .where('parent')
-        .equals(name)
-        .and((x) => x.parenttype === doctype && x.company === company)
-        .first()
-        .then((x) => x.income_account);
-    const income_account =
-      (await getDefault('Item', free_item)) ||
-      (await getDefault('Item Group', item_group)) ||
-      (await getDefault('Brand', brand));
-
-    return income_account;
-  }
-
-  const income_account = await getDefaultIncomeAccount();
-  return {
-    free_item_data: {
-      item_code: free_item,
-      qty: pr.free_qty || 1,
-      rate: pr.free_item_rate || 0,
-      price_list_rate: pr.free_item_rate || 0,
-      is_free_item: 1,
-      item_name,
-      description,
-      stock_uom,
-      uom,
-      conversion_factor,
-      income_account,
-    },
-  };
-}
-
-async function getAncestors(doctype, name) {
-  const { lft, rgt } = await db.table(doctype).get(name);
-  return db
-    .table(doctype)
-    .filter((x) => x.lft <= lft && x.rgt >= rgt)
-    .toArray()
-    .then(R.map(R.prop('name')));
-}
-
-async function getParents(doctype, value) {
-  function query(allowed) {
-    const apply_on = snakeCase(doctype);
-    const get_parents = R.compose(
-      (x) => Array.from(new Set(x)),
-      R.map(R.prop(apply_on))
-    );
-    return db
-      .table(`Pricing Rule ${doctype}`)
-      .where(apply_on)
-      .anyOf(allowed)
-      .toArray()
-      .then(get_parents);
-  }
-
-  if (doctype === 'Item') {
-    const allowed = await db
-      .table('Item')
-      .get(value)
-      .then((x) => (x && x.variant_of ? [value, x.variant_of] : [value]));
-    return query(allowed);
-  }
-  if (doctype === 'Item Group') {
-    const allowed = await getAncestors('Item Group', value);
-    return query(allowed);
-  }
-  if (doctype === 'Brand') {
-    const allowed = [value];
-    return query(allowed);
-  }
-  return [];
+  return result;
 }

@@ -3,7 +3,9 @@ import { get_conversion_factor } from '../get_item_details';
 import {
   UnsupportedFeatureError,
   MultiplePricingRuleConflict,
+  ValidationError,
 } from '../../../utils/exceptions.js';
+import { get_default_income_account } from '../get_item_details/utils';
 
 export function snakeCase(text) {
   return text.toLowerCase().replace(' ', '_');
@@ -520,4 +522,64 @@ function apply_internal_priority(pricing_rules, field_set, args) {
   }
 
   return pricing_rules;
+}
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/utils.py#L489
+export async function get_product_discount_rule(
+  pricing_rule,
+  item_details,
+  args,
+  doc
+) {
+  const free_item = pricing_rule.same_item
+    ? item_details.item_code || args.item_code
+    : pricing_rule.free_item;
+
+  if (!free_item) {
+    throw new ValidationError(
+      `Free item not set in the pricing rule ${pricing_rule.name}`
+    );
+  }
+
+  let free_item_data = {
+    item_code: free_item,
+    qty: pricing_rule.free_qty || 1,
+    rate: pricing_rule.free_item_rate || 0,
+    price_list_rate: pricing_rule.free_item_rate || 0,
+    is_free_item: 1,
+  };
+
+  const item_data = await db.table('Item').get(free_item);
+  const { conversion_factor = 1 } = await get_conversion_factor({
+    item_code: free_item,
+    uom: pricing_rule.free_item_uom || item_data.stock_uom,
+  });
+  free_item_data = {
+    ...free_item_data,
+    ...R.pick(['item_name', 'description', 'stock_uom', item_data]),
+    uom: pricing_rule.free_item_uom || item_data.stock_uom,
+    conversion_factor,
+  };
+
+  async function getDefaultIncomeAccount() {
+    const company = args.get('company') || doc.company;
+    const getDefault = (doctype, name) =>
+      db
+        .get('Item Default')
+        .where('parent')
+        .equals(name)
+        .and((x) => x.parenttype === doctype && x.company === company)
+        .first()
+        .then((x) => x.income_account);
+    const income_account =
+      (await getDefault('Item', free_item)) ||
+      (await getDefault('Item Group', item_data.item_group)) ||
+      (await getDefault('Brand', item_date.brand));
+
+    return income_account || args.income_account;
+  }
+
+  const income_account = await getDefaultIncomeAccount();
+  free_item_data = { ...free_item_data, income_account };
+  return { free_item_data };
 }
