@@ -1,71 +1,48 @@
 import * as R from 'ramda';
 
-import logger from '../../utils/logger';
-import db from '../db';
-import { get_conversion_factor } from './get_item_details';
+import logger from '../../../utils/logger';
+import db from '../../db';
+import { get_conversion_factor } from '../get_item_details';
 import {
   ValidationError,
   UnsupportedFeatureError,
-} from '../../utils/exceptions.js';
+} from '../../../utils/exceptions.js';
 
 export async function erpnext__accounts__doctype__pricing_rule__pricing_rule__apply_pricing_rule({
   args: _args,
   doc: _doc = null,
 }) {
-  // const { items, ...args } = JSON.parse(_args);
-  // const doc = _doc ? JSON.parse(_doc) : null;
-  // const x = await Promise.all(
-  //   items.map((x) => get_pricing_rule_for_item({ ...args, ...x }, doc))
-  // );
-  // const ex = {
-  //   transaction_type: 'selling',
-  // };
-  // logger('apply_pricing_rule', { bgcolor: 'darkgrey', args: { args, doc } });
-  // console.log(x);
+  const { items, ...args } = JSON.parse(_args);
+  const doc = _doc ? JSON.parse(_doc) : null;
+  const x = await Promise.all(
+    items.map((x) => get_pricing_rule_for_item({ ...args, ...x }, doc))
+  );
+  const ex = {
+    transaction_type: 'selling',
+  };
+  logger('apply_pricing_rule', { bgcolor: 'darkgrey', args: { args, doc } });
+  console.log(x);
 }
 
-async function get_pricing_rule_for_item(
-  {
-    doctype,
-    name,
-    parent,
-    parenttype,
-    child_docname,
-    company,
-    warehouse,
-    price_list,
-    customer,
-    ignore_pricing_rule,
-    campaign,
-    sales_partner,
-    transaction_date,
-    item_code,
-    is_free_item,
-    pricing_rules,
-    coupon_code,
-    ...others
-  },
-  doc,
-  for_validate = false
-) {
+async function get_pricing_rule_for_item(args, doc, for_validate = false) {
   if (is_free_item) {
     return {};
   }
 
   const initial = {
-    doctype,
-    name,
-    parent,
-    parenttype,
-    child_docname,
+    ...R.pick(
+      ['doctype', 'name', 'parent', 'parenttype', 'child_docname'],
+      args
+    ),
     discount_percentage_on_rate: [],
     discount_amount_on_rate: [],
   };
 
-  if (ignore_pricing_rule || !item_code) {
+  if (args.ignore_pricing_rule || !args.item_code) {
     // upstream: checks if doc exists in db
     // maybe the conditional below is not required because all docs will be client
     // docs anyways
+    const { pricing_rules, item_code } = args;
     if (pricing_rules) {
       return remove_pricing_rule_for_item(pricing_rules, initial, item_code);
     }
@@ -191,8 +168,6 @@ async function remove_pricing_rule_for_item(
   initial,
   item_code = null
 ) {
-  console.log('remove_pricing_rule_for_item', pricing_rules);
-
   function getRateOrDiscount(pricing_rule) {
     if (pricing_rule.price_or_product_discount === 'Price') {
       if (pricing_rule.rate_or_discount === 'Discount Percentage') {
@@ -253,6 +228,9 @@ async function remove_pricing_rule_for_item(
 async function get_applied_pricing_rules({ pricing_rules }) {
   if (!pricing_rules) {
     return [];
+  }
+  if (pricing_rules.startsWith('[')) {
+    return JSON.parse(pricing_rules);
   }
   return pricing_rules.split(',');
 }
