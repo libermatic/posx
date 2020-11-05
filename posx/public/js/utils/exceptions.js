@@ -18,3 +18,10 @@ export class UnsupportedFeatureError extends ValidationError {
     this.name = 'UnsupportedFeatureError';
   }
 }
+
+export class MultiplePricingRuleConflict extends ValidationError {
+  constructor(message) {
+    super(message);
+    this.name = 'MultiplePricingRuleConflict';
+  }
+}
