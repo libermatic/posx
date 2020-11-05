@@ -7,7 +7,11 @@ import {
   ValidationError,
   UnsupportedFeatureError,
 } from '../../../utils/exceptions.js';
-import { get_pricing_rule_items, snakeCase } from './utils';
+import {
+  get_applied_pricing_rules,
+  get_pricing_rule_items,
+  snakeCase,
+} from './utils';
 
 export async function erpnext__accounts__doctype__pricing_rule__pricing_rule__apply_pricing_rule({
   args: _args,
@@ -209,17 +213,6 @@ async function remove_pricing_rule_for_item(
     result.pricing_rules = '';
     return result;
   }
-}
-
-// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/utils.py#L480
-async function get_applied_pricing_rules({ pricing_rules }) {
-  if (!pricing_rules) {
-    return [];
-  }
-  if (pricing_rules.startsWith('[')) {
-    return JSON.parse(pricing_rules);
-  }
-  return pricing_rules.split(',');
 }
 
 async function get_pricing_rules(

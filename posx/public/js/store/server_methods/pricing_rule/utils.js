@@ -4,6 +4,17 @@ export function snakeCase(text) {
   return text.toLowerCase().replace(' ', '_');
 }
 
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/utils.py#L480
+export async function get_applied_pricing_rules({ pricing_rules }) {
+  if (!pricing_rules) {
+    return [];
+  }
+  if (pricing_rules.startsWith('[')) {
+    return JSON.parse(pricing_rules);
+  }
+  return pricing_rules.split(',');
+}
+
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/utils.py#L536
 export async function get_pricing_rule_items(pr_doc) {
   let apply_on_data = [];
