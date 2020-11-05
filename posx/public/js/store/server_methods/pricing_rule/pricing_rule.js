@@ -338,31 +338,32 @@ function apply_multiple_pricing_rules(rules) {
   return rules.every((x) => x.apply_multiple_pricing_rules);
 }
 
-async function get_pricing_rule_items(pricing_rule) {
-  const apply_on = snakeCase(pricing_rule.apply_on);
-  async function joinItemGroupsDescendants(names) {
-    const descendents = await Promise.all(
-      names.map((x) => getDescendents('Item Group', x))
-    );
-    return descendents.flat();
-  }
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/utils.py#L536
+async function get_pricing_rule_items(pr_doc) {
+  let apply_on_data = [];
+  const apply_on = snakeCase(pr_doc.apply_on);
 
   const children = await db
-    .table(`Pricing Rule ${pricing_rule.apply_on}`)
+    .table(`Pricing Rule ${pr_doc.apply_on}`)
     .where('parent')
-    .equals(pricing_rule.name)
-    .toArray()
-    .then(R.map(R.prop(apply_on)))
-    .then(apply_on === 'item_group' ? joinItemGroupsDescendants : R.identity);
+    .equals(pr_doc.name)
+    .toArray();
 
-  if (pricing_rule.apply_rule_on_other) {
-    const other_apply_on = `other_${snakeCase(
-      pricing_rule.apply_rule_on_other
-    )}`;
-    return Array.from(new Set([...children, pricing_rule[other_apply_on]]));
+  for (let row of children) {
+    if (apply_on === 'item_group') {
+      const descendents = await getDescendents('Item Group', row[apply_on]);
+      apply_on_data = [...apply_on_data, ...descendents];
+    } else {
+      apply_on_data = [...apply_on_data, row[apply_on]];
+    }
   }
 
-  return Array.from(new Set(children));
+  if (pr_doc.apply_rule_on_other) {
+    const other_apply_on = snakeCase(pr_doc.apply_rule_on_other);
+    apply_on_data = [...apply_on_data, pr_doc[`other_${other_apply_on}`]];
+  }
+
+  return Array.from(new Set(apply_on_data));
 }
 
 async function filter_pricing_rules(
