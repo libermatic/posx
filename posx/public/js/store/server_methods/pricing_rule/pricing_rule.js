@@ -163,68 +163,54 @@ async function get_pricing_rule_for_item(args, doc, for_validate = false) {
   };
 }
 
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/pricing_rule.py#L371
 async function remove_pricing_rule_for_item(
   pricing_rules,
-  initial,
+  item_details,
   item_code = null
 ) {
-  function getRateOrDiscount(pricing_rule) {
+  const result = { ...item_details };
+  for (const name of get_applied_pricing_rules(pricing_rules)) {
+    const pricing_rule = await db.table('Pricing Rule').get(name);
+    if (!pricing_rule) {
+      continue;
+    }
+
     if (pricing_rule.price_or_product_discount === 'Price') {
       if (pricing_rule.rate_or_discount === 'Discount Percentage') {
-        return { discount_percentage: 0, discount_amount: 0 };
+        result.discount_percentage = 0.0;
+        result.discount_amount = 0.0;
+      } else if (pricing_rule.rate_or_discount === 'Discount Amount') {
+        result.discount_amount = 0.0;
       }
-      if (pricing_rule.rate_or_discount === 'Discount Amount') {
-        return { discount_amount: 0 };
+
+      if (['Percentage', 'Amount'].includes(pricing_rule.margin_type)) {
+        result.margin_rate_or_amount = 0.0;
+        result.margin_type = null;
       }
+    } else if (pricing_rule.free_item) {
+      result.remove_free_item = pricing_rule.same_item
+        ? item_code
+        : pricing_rule.free_item;
     }
-  }
-  function getFreeItem(pricing_rule) {
-    if (pricing_rule.free_item) {
-      return {
-        remove_free_item: pricing_rule.same_item
-          ? item_code
-          : pricing_rule.free_item,
-      };
-    }
-  }
-  function getMarginType(pricing_rule) {
-    if (
-      pricing_rule.price_or_product_discount === 'Price' &&
-      ['Percentage', 'Amount'].includes(pricing_rule.margin_type)
-    ) {
-      return { margin_rate_or_amount: 0, margin_type: null };
-    }
-  }
-  async function getMixedConditions(pricing_rule) {
+
     if (pricing_rule.mixed_conditions || pricing_rule.apply_rule_on_other) {
-      const items = await get_pricing_rule_items(pricing_rule);
-      return {
-        apply_on: pricing_rule.apply_rule_on_other
-          ? snakeCase(pricing_rule.apply_rule_on_other)
-          : snakeCase(pricing_rule.apply_on),
-        applied_on_items: items.join(','),
-      };
+      items = get_pricing_rule_items(pricing_rule);
+      result.apply_on = snakeCase(
+        pricing_rule.apply_rule_on_other
+          ? pricing_rule.apply_rule_on_other
+          : pricing_rule.apply_on
+      );
+      result.applied_on_items = JSON.stringify(items);
+      result.price_or_product_discount = pricing_rule.price_or_product_discount;
     }
+
+    result.pricing_rules = '';
+    return result;
   }
-
-  const resets = await Promise.all(
-    pricing_rules.split(',').map(async function (name) {
-      const pr = await db.table('Pricing Rule').get(name);
-      console.log('promise.all', pr);
-
-      const props = await Promise.all([
-        getRateOrDiscount(pr),
-        getFreeItem(pr),
-        getMarginType(pr),
-        getMixedConditions(pr),
-      ]);
-      return Object.assign(...props);
-    })
-  );
-
-  return { ...initial, pricing_rules: '', ...Object.assign(...resets) };
 }
 
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/utils.py#L480
 async function get_applied_pricing_rules({ pricing_rules }) {
   if (!pricing_rules) {
     return [];
