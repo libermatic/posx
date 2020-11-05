@@ -1,8 +1,8 @@
 import * as R from 'ramda';
 
-import db from '../db';
-import { UnsupportedFeatureError } from '../../utils/exceptions.js';
-import logger from '../../utils/logger';
+import db from '../../db';
+import { UnsupportedFeatureError } from '../../../utils/exceptions.js';
+import logger from '../../../utils/logger';
 
 export async function erpnext__stock__get_item_details__apply_price_list({
   args: _args,
@@ -196,5 +196,7 @@ export async function get_conversion_factor({ item_code, uom }) {
       .anyOf(parents)
       .and((x) => x.uom === uom)
       .first()) || {};
+
+  // get_uom_conv_factor is not implemented
   return { conversion_factor };
 }
