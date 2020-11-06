@@ -9,16 +9,18 @@ export default function with_batch_price(SBSelector) {
         if (frappe.flags.use_batch_price) {
           const request_args = this._get_batch_request_args();
           Promise.all(
-            this.dialog.fields_dict.batches.df.data.map((x) =>
-              frappe
-                .call({
-                  method: 'posx.api.sales_invoice.get_batch_price',
-                  args: { ...request_args, batch_no: x.batch_no },
-                })
-                .then(({ message: batch_price_list_rate }) => {
-                  x.batch_price_list_rate = batch_price_list_rate;
-                })
-            )
+            this.dialog.fields_dict.batches.df.data
+              .filter((x) => !!x.batch_no)
+              .map((x) =>
+                frappe
+                  .call({
+                    method: 'posx.api.sales_invoice.get_batch_price',
+                    args: { ...request_args, batch_no: x.batch_no },
+                  })
+                  .then(({ message: batch_price_list_rate }) => {
+                    x.batch_price_list_rate = batch_price_list_rate;
+                  })
+              )
           ).then(() => this.dialog.fields_dict.batches.refresh());
         }
       }
