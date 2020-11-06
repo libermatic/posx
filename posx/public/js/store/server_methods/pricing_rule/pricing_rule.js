@@ -46,7 +46,7 @@ export async function erpnext__accounts__doctype__pricing_rule__pricing_rule__ap
   return out;
 }
 
-async function get_pricing_rule_for_item(
+export async function get_pricing_rule_for_item(
   _args,
   _price_list_rate = 0,
   doc,
