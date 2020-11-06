@@ -149,6 +149,5 @@ async function get_batch_price({
     },
     item
   );
-  console.log('price', price_list_rate);
   return price_list_rate;
 }

@@ -74,7 +74,7 @@ export default function with_batch_price(SBSelector) {
 
 function mod_batch_no_field(
   field,
-  { warehouse, item_code, customer, transaction_date, price_list }
+  { warehouse, item_code, customer, transaction_date, price_list, company }
 ) {
   return {
     ...field,
@@ -111,6 +111,7 @@ function mod_batch_no_field(
             customer,
             price_list,
             transaction_date,
+            company,
           },
         });
         this.grid_row.on_grid_fields_dict.available_qty.set_value(
