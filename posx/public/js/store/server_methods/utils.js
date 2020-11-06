@@ -47,6 +47,27 @@ export async function getDescendents(doctype, name) {
     .then(R.map(R.prop('name')));
 }
 
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/doctype/price_list/price_list.py#L53
+export async function get_price_list_details(price_list) {
+  const price_list_details = await db
+    .table('Price List')
+    .get(price_list)
+    .then(
+      (x) => x && R.pick(['currency', 'price_not_uom_dependent', 'enabled'], x)
+    );
+  if (!price_list_details || !price_list_details.enabled) {
+    throw new ValidationError(
+      `Price List ${price_list} is disabled or does not exist`
+    );
+  }
+  return price_list_details;
+}
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/__init__.py#L43
+export async function get_company_currency(company) {
+  const { default_currency } = (await db.table('Company').get(company)) || {};
+  return default_currency;
+}
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/get_item_details.py#L843
 export async function get_conversion_factor(item_code, uom) {
   const { variant_of } = (await db.table('Item').get(item_code)) || {};
