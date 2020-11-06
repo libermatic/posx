@@ -26,40 +26,45 @@ export async function erpnext__accounts__doctype__pricing_rule__pricing_rule__ap
   console.log(x);
 }
 
-async function get_pricing_rule_for_item(args, doc, for_validate = false) {
-  if (is_free_item) {
+async function get_pricing_rule_for_item(
+  _args,
+  _price_list_rate = 0,
+  doc,
+  for_validate = false
+) {
+  if (_args.is_free_item) {
     return {};
   }
 
   let item_details = {
     ...R.pick(
       ['doctype', 'name', 'parent', 'parenttype', 'child_docname'],
-      args
+      _args
     ),
     discount_percentage_on_rate: [],
     discount_amount_on_rate: [],
   };
 
-  if (args.ignore_pricing_rule || !args.item_code) {
+  if (_args.ignore_pricing_rule || !_args.item_code) {
     // upstream: checks if doc exists in db
     // maybe the conditional below is not required because all docs will be client
     // docs anyways
     if (pricing_rules) {
       return remove_pricing_rule_for_item(
-        args.pricing_rules,
+        _args.pricing_rules,
         item_details,
-        args.item_code
+        _args.item_code
       );
     }
     return item_details;
   }
 
-  const updated_args = update_args_for_pricing_rule(args);
+  const args = await update_args_for_pricing_rule(_args);
 
   const pricing_rules =
-    for_validate && updated_args.pricing_rules
-      ? get_applied_pricing_rules(updated_args.pricing_rules)
-      : get_pricing_rules(updated_args, doc);
+    for_validate && args.pricing_rules
+      ? get_applied_pricing_rules(args.pricing_rules)
+      : get_pricing_rules(args, doc);
 
   if (pricing_rules.length > 0) {
     let rules = [];
@@ -127,7 +132,7 @@ async function get_pricing_rule_for_item(args, doc, for_validate = false) {
     }
   } else if (args.pricing_rules) {
     const removed = await remove_pricing_rule_for_item(
-      argspricing_rules,
+      args.pricing_rules,
       item_details,
       args.item_code
     );

@@ -1,3 +1,5 @@
+import * as R from 'ramda';
+
 import db from '../../db';
 import { get_conversion_factor } from '../get_item_details';
 import {
@@ -5,7 +7,6 @@ import {
   MultiplePricingRuleConflict,
   ValidationError,
 } from '../../../utils/exceptions.js';
-import { get_default_income_account } from '../get_item_details/utils';
 
 export function snakeCase(text) {
   return text.toLowerCase().replace(' ', '_');
@@ -13,7 +14,7 @@ export function snakeCase(text) {
 
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/accounts/doctype/pricing_rule/utils.py#L33
 export async function get_pricing_rules(args, doc = null) {
-  const pricing_rules = await getRules();
+  const pricing_rules = await getRules(args);
   if (pricing_rules.length === 0) {
     return [];
   }
@@ -111,11 +112,11 @@ async function getRules(args) {
       .where('apply_rule_on_other')
       .notEqual('')
       .and((x) => x[`other_${apply_on}`] === value)
-      .toArray((x) => x.name);
+      .toArray(R.map(R.prop('name')));
 
     const get_parents = R.compose(
       (x) => Array.from(new Set([...x, ...other])),
-      R.map(R.prop(apply_on))
+      R.map(R.prop('parent'))
     );
 
     const query = async (allowed) => {
@@ -126,7 +127,7 @@ async function getRules(args) {
         .toArray(get_parents);
     };
 
-    if (doctype === 'Item') {
+    if (doctype === 'Item Code') {
       const allowed = await db
         .table('Item')
         .get(value)
@@ -137,21 +138,21 @@ async function getRules(args) {
       const allowed = await getAncestors('Item Group', value);
       return query(allowed);
     }
-    if (doctype === 'Brand') {
+    if (doctype === 'Brand' && value) {
       const allowed = [value];
       return query(allowed);
     }
     return [];
   }
 
-  async function withChild(row, doctype) {
+  async function withChild(row, doctype, value) {
     const apply_on = snakeCase(doctype);
     const { uom } =
       (await db
         .table(`Pricing Rule ${doctype}`)
         .where('parent')
         .equals(row.name)
-        .and((x) => x[apply_on] === args[apply_on])
+        .and((x) => x[apply_on] === value)
         .first()) || {};
 
     return { ...row, [apply_on]: value, uom };
@@ -191,7 +192,9 @@ async function getRules(args) {
       )
       .reverse()
       .sortBy('priority', (result) =>
-        Promise.all(result.map(withChild(row, doctype)))
+        Promise.all(
+          result.map((row) => withChild(row, doctype, args[apply_on]))
+        )
       );
   }
 
