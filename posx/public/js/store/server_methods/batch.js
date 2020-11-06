@@ -4,7 +4,7 @@ import db from '../db';
 import logger from '../../utils/logger';
 import { UnableToSelectBatchError } from '../../utils/exceptions.js';
 import { get_price_list_rate } from './get_item_details/get_item_details';
-import { get_conversion_factor } from './utils';
+import { get_company_currency, get_conversion_factor } from './utils';
 
 export async function erpnext__stock__doctype__batch__batch__get_batch_no({
   item_code,
@@ -115,7 +115,11 @@ async function get_batch_price({
   if (px_price_list_rate) {
     return px_price_list_rate;
   }
-  const item = await db.table('Item').get(item_code);
+
+  const [item, currency] = await Promise.all([
+    db.table('Item').get(item_code),
+    get_company_currency(company),
+  ]);
   const uom = _uom || item.stock_uom;
 
   const [
@@ -141,6 +145,7 @@ async function get_batch_price({
       stock_uom: item.stock_uom,
       conversion_factor,
       company,
+      currency,
     },
     item
   );
