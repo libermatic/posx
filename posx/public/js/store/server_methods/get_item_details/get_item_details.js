@@ -186,7 +186,7 @@ function getRowWithPricingRule(row) {
   };
 }
 
-export async function get_conversion_factor({ item_code, uom }) {
+export async function get_conversion_factor(item_code, uom) {
   const { variant_of } = (await db.table('Item').get(item_code)) || {};
   const parents = variant_of ? [item_code, variant_of] : [item_code];
   const { conversion_factor = 1 } =

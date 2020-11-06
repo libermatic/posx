@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
 import db from '../../db';
-import { get_conversion_factor } from '../get_item_details';
+import { get_conversion_factor } from '../get_item_details/get_item_details';
 import {
   UnsupportedFeatureError,
   MultiplePricingRuleConflict,
@@ -428,10 +428,7 @@ async function filter_pricing_rules_for_qty_amount(
     let conversion_factor = 1;
 
     if (rule.uom) {
-      conversion_factor = await get_conversion_factor({
-        item_code: rule.item_code,
-        uom: rule.uom,
-      });
+      conversion_factor = await get_conversion_factor(rule.item_code, rule.uom);
     }
     if (
       qty >= rule.min_qty * conversion_factor &&
@@ -553,10 +550,10 @@ export async function get_product_discount_rule(
   };
 
   const item_data = await db.table('Item').get(free_item);
-  const { conversion_factor = 1 } = await get_conversion_factor({
-    item_code: free_item,
-    uom: pricing_rule.free_item_uom || item_data.stock_uom,
-  });
+  const { conversion_factor = 1 } = await get_conversion_factor(
+    free_item,
+    pricing_rule.free_item_uom || item_data.stock_uom
+  );
   free_item_data = {
     ...free_item_data,
     ...R.pick(['item_name', 'description', 'stock_uom', item_data]),

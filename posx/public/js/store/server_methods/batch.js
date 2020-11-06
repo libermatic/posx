@@ -3,7 +3,10 @@ import * as R from 'ramda';
 import db from '../db';
 import logger from '../../utils/logger';
 import { UnableToSelectBatchError } from '../../utils/exceptions.js';
-import { get_price_list_rate, get_conversion_factor } from './get_item_details';
+import {
+  get_price_list_rate,
+  get_conversion_factor,
+} from './get_item_details/get_item_details';
 
 export async function erpnext__stock__doctype__batch__batch__get_batch_no({
   item_code,
@@ -121,10 +124,7 @@ async function get_batch_price({
     // price_list_uom_dependant: is the field in Price List
     { price_not_uom_dependent: price_list_uom_dependant } = {},
   ] = await Promise.all([
-    get_conversion_factor({
-      item_code,
-      uom,
-    }),
+    get_conversion_factor(item_code, uom),
     db.table('Price List').get(price_list),
   ]);
 
