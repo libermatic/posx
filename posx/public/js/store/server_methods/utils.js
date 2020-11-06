@@ -1,6 +1,11 @@
 import * as R from 'ramda';
 
 import db from '../db';
+import { ValidationError } from '../../utils/exceptions';
+
+export function snakeCase(text) {
+  return text.toLowerCase().replace(' ', '_');
+}
 
 export function get_filters(filters) {
   try {
