@@ -1,6 +1,5 @@
 import * as R from 'ramda';
 
-import logger from '../../../utils/logger';
 import db from '../../db';
 import { ValidationError } from '../../../utils/exceptions.js';
 import {
@@ -9,21 +8,42 @@ import {
   get_pricing_rule_items,
   snakeCase,
 } from './utils';
+import logger from '../../../utils/logger';
 
 export async function erpnext__accounts__doctype__pricing_rule__pricing_rule__apply_pricing_rule({
   args: _args,
   doc: _doc = null,
 }) {
-  const { items, ...args } = JSON.parse(_args);
+  const { items: item_list, ...args } = JSON.parse(_args);
   const doc = _doc ? JSON.parse(_doc) : null;
-  const x = await Promise.all(
-    items.map((x) => get_pricing_rule_for_item({ ...args, ...x }, doc))
-  );
-  const ex = {
-    transaction_type: 'selling',
-  };
-  logger('apply_pricing_rule', { bgcolor: 'darkgrey', args: { args, doc } });
-  console.log(x);
+
+  let out = [];
+
+  for (const item of item_list) {
+    const { has_serial_no } = await db.table('Item').get(item.item_code);
+    if (has_serial_no) {
+      logger(
+        'apply_pricing_rule: delegate queries containing serialized items to network'
+      );
+      return;
+    }
+
+    const _args = {
+      ...args,
+      ...item,
+      transaction_type: args.transaction_type || 'selling',
+    };
+    const data = await get_pricing_rule_for_item(
+      _args,
+      args.price_list_rate,
+      doc
+    );
+
+    // not implemented get_serial_no_for_item
+    out = [...out, data];
+  }
+
+  return out;
 }
 
 async function get_pricing_rule_for_item(
