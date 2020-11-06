@@ -41,3 +41,19 @@ export async function getDescendents(doctype, name) {
     .toArray()
     .then(R.map(R.prop('name')));
 }
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/get_item_details.py#L843
+export async function get_conversion_factor(item_code, uom) {
+  const { variant_of } = (await db.table('Item').get(item_code)) || {};
+  const parents = variant_of ? [item_code, variant_of] : [item_code];
+  const { conversion_factor = 1 } =
+    (await db
+      .table('UOM Conversion Detail')
+      .where('parent')
+      .anyOf(parents)
+      .and((x) => x.uom === uom)
+      .first()) || {};
+
+  // get_uom_conv_factor is not implemented
+  return { conversion_factor };
+}

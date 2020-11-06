@@ -3,10 +3,8 @@ import * as R from 'ramda';
 import db from '../db';
 import logger from '../../utils/logger';
 import { UnableToSelectBatchError } from '../../utils/exceptions.js';
-import {
-  get_price_list_rate,
-  get_conversion_factor,
-} from './get_item_details/get_item_details';
+import { get_price_list_rate } from './get_item_details/get_item_details';
+import { get_conversion_factor } from './utils';
 
 export async function erpnext__stock__doctype__batch__batch__get_batch_no({
   item_code,
@@ -117,6 +115,7 @@ async function get_batch_price({
   const { stock_uom } = await db.table('Item').get(item_code);
 
   const uom = _uom || stock_uom;
+
   const [
     { conversion_factor },
 

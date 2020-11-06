@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
 import db from '../../db';
-import { get_conversion_factor } from '../get_item_details/get_item_details';
+import { get_conversion_factor } from '../utils';
 import {
   UnsupportedFeatureError,
   MultiplePricingRuleConflict,
