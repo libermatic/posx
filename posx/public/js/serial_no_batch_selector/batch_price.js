@@ -57,6 +57,7 @@ export default function with_batch_price(SBSelector) {
           customer,
           posting_date: transaction_date,
           selling_price_list: price_list,
+          company,
         } = this.frm.doc;
         return {
           warehouse,
@@ -64,6 +65,7 @@ export default function with_batch_price(SBSelector) {
           customer,
           transaction_date,
           price_list,
+          company,
         };
       }
     }

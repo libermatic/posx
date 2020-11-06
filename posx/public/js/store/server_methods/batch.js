@@ -60,6 +60,7 @@ export async function posx__api__sales_invoice__get_batch_qty({
   customer,
   price_list,
   transaction_date,
+  company,
 }) {
   const [
     { qty: available_qty = 0 } = {},
@@ -72,6 +73,7 @@ export async function posx__api__sales_invoice__get_batch_qty({
       customer,
       price_list,
       transaction_date,
+      company,
     }),
   ]);
   return { message: { available_qty, batch_price_list_rate } };
@@ -107,14 +109,14 @@ async function get_batch_price({
   qty = 1,
   transaction_date,
   uom: _uom,
+  company,
 }) {
   const { px_price_list_rate } = (await db.table('Batch').get(batch_no)) || {};
   if (px_price_list_rate) {
     return px_price_list_rate;
   }
-  const { stock_uom } = await db.table('Item').get(item_code);
-
-  const uom = _uom || stock_uom;
+  const item = await db.table('Item').get(item_code);
+  const uom = _uom || item.stock_uom;
 
   const [
     { conversion_factor },
@@ -127,15 +129,21 @@ async function get_batch_price({
     db.table('Price List').get(price_list),
   ]);
 
-  return get_price_list_rate({
-    item_code,
-    customer,
-    price_list,
-    price_list_uom_dependant,
-    transaction_date,
-    qty,
-    uom,
-    stock_uom,
-    conversion_factor,
-  });
+  const { price_list_rate } = await get_price_list_rate(
+    {
+      item_code,
+      customer,
+      price_list,
+      price_list_uom_dependant,
+      transaction_date,
+      qty,
+      uom,
+      stock_uom: item.stock_uom,
+      conversion_factor,
+      company,
+    },
+    item
+  );
+  console.log('price', price_list_rate);
+  return price_list_rate;
 }
