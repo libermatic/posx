@@ -1,4 +1,5 @@
 import './caching';
+import './background-sync';
 import './intercept';
 
 self.addEventListener('message', (event) => {
