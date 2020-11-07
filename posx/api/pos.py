@@ -17,7 +17,7 @@ def get_stock_qtys(warehouse, doctype, items=None):
         return frappe.get_all(
             "Bin",
             filters={"item_code": ("in", json.loads(items)), "warehouse": warehouse},
-            fields=["item_code", "warehouse", "actual_qty as qty"],
+            fields=["item_code", "warehouse", "actual_qty as qty", "valuation_rate"],
         )
 
     if doctype == "Batch":
