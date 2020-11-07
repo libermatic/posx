@@ -13,7 +13,7 @@ import {
   get_conversion_factor,
 } from '../utils';
 import { get_pricing_rule_for_item } from '../pricing_rule/pricing_rule';
-import { get_batch_no, get_batch_qty } from '../batch/batch';
+import { get_batch_no } from '../batch/batch';
 import get_price_list_rate, {
   get_price_list_currency_and_exchange_rate,
 } from './get_price_list_rate';
@@ -649,4 +649,13 @@ function get_gross_profit(out) {
     };
   }
   return out;
+}
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/get_item_details.py#L898
+async function get_batch_qty(batch_no, warehouse, item_code) {
+  if (batch_no) {
+    const { qty: actual_batch_qty = 0 } =
+      (await db.batch_stock.where({ batch_no, warehouse }).first()) || {};
+    return { actual_batch_qty };
+  }
 }
