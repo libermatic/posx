@@ -68,6 +68,41 @@ export async function get_company_currency(company) {
   const { default_currency } = (await db.table('Company').get(company)) || {};
   return default_currency;
 }
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/doctype/item/item.py#L1171
+export async function get_item_defaults(item_code, company) {
+  return get_defaults('Item', item_code, company);
+}
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/setup/doctype/item_group/item_group.py#L232
+export async function get_item_group_defaults(item_code, company) {
+  const { item_group } = await db.table('Item').get(item_code);
+  return get_defaults('Item Group', item_group, company);
+}
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/setup/doctype/brand/brand.py#L13
+export async function get_brand_defaults(item_code, company) {
+  const { brand } = await db.table('Item').get(item_code);
+  if (!brand) {
+    return {};
+  }
+  return get_defaults('Brand', brand, company);
+}
+
+async function get_defaults(doctype, name, company) {
+  const [doc, def] = await Promise.all([
+    db.table(doctype).get(name),
+    db
+      .table('Item Default')
+      .where('parent')
+      .equals(name)
+      .and((x) => x.parenttype === doctype && x.company === company)
+      .first()
+      .then(R.omit(['name'])),
+  ]);
+  return { ...doc, ...def };
+}
+
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/get_item_details.py#L843
 export async function get_conversion_factor(item_code, uom) {
   const { variant_of } = (await db.table('Item').get(item_code)) || {};
