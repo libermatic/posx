@@ -1,5 +1,6 @@
 import * as methods from '../store/server_methods';
 import logger from '../utils/logger';
+import { make_response, get_args } from './utils';
 
 const METHODS = Object.assign(
   ...Object.keys(methods).map((x) => ({
@@ -50,36 +51,10 @@ async function query_client(method, args) {
   return null;
 }
 
-function make_response({ payload, status = 200 }) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    ok: 200 <= status && status < 300,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
 function get_endpoint(request) {
   const url = new URL(request.url);
   if (!url.pathname.includes('/api/method/')) {
     return null;
   }
   return url.pathname.replace('/api/method/', '');
-}
-
-async function get_args(request) {
-  const args = {};
-  if (request.method === 'GET') {
-    const url = new URL(request.url);
-    url.searchParams.forEach((value, key) => {
-      args[key] = value;
-    });
-  } else if (request.method === 'POST') {
-    const req = request.clone();
-    const text = await req.text();
-    const searchParams = new URLSearchParams(text);
-    searchParams.forEach((value, key) => {
-      args[key] = value;
-    });
-  }
-  return args;
 }
