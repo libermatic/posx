@@ -12,6 +12,10 @@ export async function cache_settings() {
       doctype: 'Accounts Settings',
       fields: ['determine_address_tax_category_from'],
     },
+    {
+      doctype: 'Stock Settings',
+      fields: ['default_warehouse'],
+    },
   ];
 
   return Promise.all(
