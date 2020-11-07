@@ -85,7 +85,7 @@ export const ENTITIES = [
       'account_name',
       // 'account_number',
       // 'is_group',
-      // 'company',
+      'company',
       // 'root_type',
       // 'report_type',
       'account_currency',
@@ -111,7 +111,7 @@ export const ENTITIES = [
       'cost_center_name',
       // 'cost_center_number',
       // 'parent_cost_center',
-      // 'company',
+      'company',
       // 'is_group',
       // 'disabled',
       // 'lft',
@@ -254,6 +254,7 @@ export const ENTITIES = [
     children: [
       {
         doctype: 'POS Profile User',
+        indices: ['user'],
         fields: ['default', 'user'],
       },
       {
@@ -461,6 +462,19 @@ export const ENTITIES = [
     ],
   },
   {
+    doctype: 'Item Tax Template',
+    fields: [
+      // 'title',
+      // 'taxes'
+    ],
+    children: [
+      {
+        doctype: 'Item Tax Template Detail',
+        fields: ['tax_type', 'tax_rate'],
+      },
+    ],
+  },
+  {
     doctype: 'Item Price',
     indices: ['item_code'],
     fields: [
@@ -585,6 +599,27 @@ export const ENTITIES = [
     ],
     get_filters: () => ({ disabled: 0 }),
   },
+  {
+    doctype: 'Product Bundle',
+    indices: ['new_item_code'],
+    fields: [
+      'new_item_code',
+      // 'description',
+    ],
+    children: [
+      {
+        doctype: 'Product Bundle Item',
+        fields: [
+          'item_code',
+          'qty',
+          // 'description',
+          'rate',
+          'uom',
+        ],
+      },
+    ],
+  },
+
   {
     doctype: 'Customer',
     fields: [
