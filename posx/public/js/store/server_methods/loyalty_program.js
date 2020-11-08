@@ -23,7 +23,7 @@ async function get_loyalty_program_details({
     (await db
       .table('Customer')
       .get(customer)
-      .then((x) => x.loyalty_program));
+      .then((x) => x && x.loyalty_program));
   if (!_loyalty_program) {
     if (!silent) {
       throw new ValidationError(

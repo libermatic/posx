@@ -25,6 +25,7 @@ export async function set_batch_price(item) {
     customer,
     selling_price_list: price_list,
     posting_date: transaction_date,
+    company,
   } = frappe.get_doc(item.parenttype, item.parent);
   const { message: price_list_rate } = await frappe.call({
     method: 'posx.api.sales_invoice.get_batch_price',
@@ -36,6 +37,7 @@ export async function set_batch_price(item) {
       qty,
       transaction_date,
       uom,
+      company,
     },
   });
 

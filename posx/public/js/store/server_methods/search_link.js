@@ -176,12 +176,13 @@ async function batch_query({ txt = '', page_length, filters: _filters }) {
     .then((x) =>
       Promise.all(
         x.map(async function (batch) {
-          const { qty = 0 } = await db.batch_stock
-            .where({
-              batch_no: batch.name,
-              warehouse,
-            })
-            .first();
+          const { qty = 0 } =
+            (await db.batch_stock
+              .where({
+                batch_no: batch.name,
+                warehouse,
+              })
+              .first()) || {};
           return { ...batch, qty };
         })
       )

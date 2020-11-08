@@ -9,16 +9,18 @@ export default function with_batch_price(SBSelector) {
         if (frappe.flags.use_batch_price) {
           const request_args = this._get_batch_request_args();
           Promise.all(
-            this.dialog.fields_dict.batches.df.data.map((x) =>
-              frappe
-                .call({
-                  method: 'posx.api.sales_invoice.get_batch_price',
-                  args: { ...request_args, batch_no: x.batch_no },
-                })
-                .then(({ message: batch_price_list_rate }) => {
-                  x.batch_price_list_rate = batch_price_list_rate;
-                })
-            )
+            this.dialog.fields_dict.batches.df.data
+              .filter((x) => !!x.batch_no)
+              .map((x) =>
+                frappe
+                  .call({
+                    method: 'posx.api.sales_invoice.get_batch_price',
+                    args: { ...request_args, batch_no: x.batch_no },
+                  })
+                  .then(({ message: batch_price_list_rate }) => {
+                    x.batch_price_list_rate = batch_price_list_rate;
+                  })
+              )
           ).then(() => this.dialog.fields_dict.batches.refresh());
         }
       }
@@ -55,6 +57,7 @@ export default function with_batch_price(SBSelector) {
           customer,
           posting_date: transaction_date,
           selling_price_list: price_list,
+          company,
         } = this.frm.doc;
         return {
           warehouse,
@@ -62,6 +65,7 @@ export default function with_batch_price(SBSelector) {
           customer,
           transaction_date,
           price_list,
+          company,
         };
       }
     }
@@ -70,7 +74,7 @@ export default function with_batch_price(SBSelector) {
 
 function mod_batch_no_field(
   field,
-  { warehouse, item_code, customer, transaction_date, price_list }
+  { warehouse, item_code, customer, transaction_date, price_list, company }
 ) {
   return {
     ...field,
@@ -107,6 +111,7 @@ function mod_batch_no_field(
             customer,
             price_list,
             transaction_date,
+            company,
           },
         });
         this.grid_row.on_grid_fields_dict.available_qty.set_value(

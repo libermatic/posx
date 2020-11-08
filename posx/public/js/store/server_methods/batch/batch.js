@@ -1,17 +1,18 @@
 import * as R from 'ramda';
 
-import db from '../db';
-import logger from '../../utils/logger';
-import { UnableToSelectBatchError } from '../../utils/exceptions.js';
-import { get_price_list_rate, get_conversion_factor } from './get_item_details';
+import db from '../../db';
+import logger from '../../../utils/logger';
+import { UnableToSelectBatchError } from '../../../utils/exceptions.js';
+import get_price_list_rate from '../get_item_details/get_price_list_rate';
+import { get_company_currency, get_conversion_factor } from '../utils';
 
-export async function erpnext__stock__doctype__batch__batch__get_batch_no({
+export async function get_batch_no(
   item_code,
   warehouse,
   qty = 1,
-  throw: _throw = false,
-  serial_no = null,
-}) {
+  _throw = false,
+  serial_no = null
+) {
   if (serial_no) {
     logger('get_batch_no: delegate queries with serial_no to network');
     return;
@@ -42,24 +43,18 @@ export async function erpnext__stock__doctype__batch__batch__get_batch_no({
     );
   }
 
-  return { message: batch_no };
+  return batch_no;
 }
 
-export async function posx__api__sales_invoice__get_batch_price(args) {
-  const message = await get_batch_price(args);
-  if (message) {
-    return { message };
-  }
-}
-
-export async function posx__api__sales_invoice__get_batch_qty({
+export async function get_batch_qty(
   batch_no,
   warehouse,
   item_code,
   customer,
   price_list,
   transaction_date,
-}) {
+  company
+) {
   const [
     { qty: available_qty = 0 } = {},
     batch_price_list_rate,
@@ -71,18 +66,19 @@ export async function posx__api__sales_invoice__get_batch_qty({
       customer,
       price_list,
       transaction_date,
+      company,
     }),
   ]);
-  return { message: { available_qty, batch_price_list_rate } };
+  return { available_qty, batch_price_list_rate };
 }
 
-export async function erpnext__stock__get_item_details__get_batch_qty_and_serial_no({
+export async function get_batch_qty_and_serial_no(
   batch_no,
   stock_qty,
   warehouse,
   item_code,
-  has_serial_no,
-}) {
+  has_serial_no
+) {
   if (Boolean(Number(has_serial_no))) {
     logger(
       'get_batch_qty_and_serial_no: delegate queries with serial_no to network'
@@ -98,7 +94,7 @@ export async function erpnext__stock__get_item_details__get_batch_qty_and_serial
   return { actual_batch_qty };
 }
 
-async function get_batch_price({
+export async function get_batch_price({
   batch_no,
   item_code,
   customer,
@@ -106,14 +102,19 @@ async function get_batch_price({
   qty = 1,
   transaction_date,
   uom: _uom,
+  company,
 }) {
   const { px_price_list_rate } = (await db.table('Batch').get(batch_no)) || {};
   if (px_price_list_rate) {
     return px_price_list_rate;
   }
-  const { stock_uom } = await db.table('Item').get(item_code);
 
-  const uom = _uom || stock_uom;
+  const [item, currency] = await Promise.all([
+    db.table('Item').get(item_code),
+    get_company_currency(company),
+  ]);
+  const uom = _uom || item.stock_uom;
+
   const [
     { conversion_factor },
 
@@ -121,22 +122,25 @@ async function get_batch_price({
     // price_list_uom_dependant: is the field in Price List
     { price_not_uom_dependent: price_list_uom_dependant } = {},
   ] = await Promise.all([
-    get_conversion_factor({
-      item_code,
-      uom,
-    }),
+    get_conversion_factor(item_code, uom),
     db.table('Price List').get(price_list),
   ]);
 
-  return get_price_list_rate({
-    item_code,
-    customer,
-    price_list,
-    price_list_uom_dependant,
-    transaction_date,
-    qty,
-    uom,
-    stock_uom,
-    conversion_factor,
-  });
+  const { price_list_rate } = await get_price_list_rate(
+    {
+      item_code,
+      customer,
+      price_list,
+      price_list_uom_dependant,
+      transaction_date,
+      qty,
+      uom,
+      stock_uom: item.stock_uom,
+      conversion_factor,
+      company,
+      currency,
+    },
+    item
+  );
+  return price_list_rate;
 }

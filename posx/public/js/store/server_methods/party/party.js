@@ -1,39 +1,11 @@
 import * as R from 'ramda';
 
-import db from '../db';
-import { set_taxes } from './taxes_and_charges';
-import { get_addresses } from './address';
+import db from '../../db';
+import { set_taxes } from '../taxes_and_charges';
+import { get_addresses } from '../address';
 
-export async function erpnext__accounts__party__get_party_account(args) {
-  const message = await get_party_account(args);
-  if (message) {
-    return { message };
-  }
-}
-
-export async function erpnext__accounts__party__get_party_details(args) {
-  const message = await get_party_details(args);
-  if (message) {
-    return { message };
-  }
-}
-
-export async function erpnext__accounts__party__get_address_tax_category(args) {
-  const message = await get_address_tax_category(args);
-  return { message };
-}
-
-export async function frappe__contacts__doctype__contact__contact__get_contact_details(
-  args
-) {
-  const message = await get_contact_details(args);
-  if (message) {
-    return { message };
-  }
-}
-
-async function get_party_account({ party_type, party, company }) {
-  if (party_type !== 'Customer') {
+export async function get_party_account({ party_type, party, company }) {
+  if (party_type !== 'Customer' || !party) {
     return;
   }
 
@@ -53,7 +25,7 @@ async function get_party_account({ party_type, party, company }) {
   return default_receivable_account;
 }
 
-async function get_party_details({
+export async function get_party_details({
   party = null,
   account = null,
   party_type = 'Customer',
@@ -210,7 +182,7 @@ async function get_default_address({
     .then(R.head);
 }
 
-async function get_address_tax_category({
+export async function get_address_tax_category({
   tax_category = null,
   billing_address = null,
   shipping_address = null,
@@ -238,7 +210,7 @@ async function get_address_tax_category({
   return _tax_category;
 }
 
-async function get_contact_details({ contact }) {
+export async function get_contact_details({ contact }) {
   const doc = (await db.table('Contact').get(contact)) || {};
   if (doc) {
     return {

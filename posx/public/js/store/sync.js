@@ -106,43 +106,34 @@ function get_data(data, model, is_child = false) {
 }
 
 export function pull_stock_qtys({ warehouse }) {
-  function storeStock(doctype) {
-    const table_name = doctype === 'Item' ? 'item_stock' : 'batch_stock';
-    const where_keys = [
-      doctype === 'Item' ? 'item_code' : 'batch_no',
-      'warehouse',
-    ];
-    return async function (stock) {
-      const existing = await db
-        .table(table_name)
-        .where(R.pick(where_keys, stock))
-        .first();
-      return db.table(table_name).put({ ...existing, ...stock });
-    };
-  }
+  const start_time = frappe.datetime.get_datetime_as_string();
 
-  return async function () {
-    return Promise.all(
-      ['Item', 'Batch'].map((doctype) =>
-        db
-          .table(doctype)
-          .toArray(R.pluck('name'))
-          .then((entities) =>
-            Promise.all(
-              R.splitEvery(LIMIT, entities).map((items) =>
-                frappe
-                  .call({
-                    method: 'posx.api.pos.get_stock_qtys',
-                    args: { warehouse, doctype, items },
-                  })
-                  .then(({ message: data }) =>
-                    Promise.all(data.map(storeStock(doctype)))
-                  )
-              )
-            )
-          )
-      )
-    );
+  return async function request({ start = 0, limit = LIMIT }) {
+    const last_updated = await db.sync_state
+      .get('item_stock')
+      .then((x) =>
+        x ? x.lastUpdated : frappe.datetime.get_datetime_as_string('1970-01-01')
+      );
+    const { message: result = {} } = await frappe.call({
+      method: 'posx.api.pos.get_stock_qtys',
+      args: { warehouse, last_updated, start, limit },
+    });
+
+    ['item_stock', 'batch_stock'].forEach((tableName) => {
+      const data = result[tableName] || [];
+      if (data.length > 0) {
+        db.table(tableName).bulkPut(data);
+      }
+    });
+
+    if (!result.has_more) {
+      return db.sync_state.put({
+        doctype: 'item_stock',
+        lastUpdated: start_time,
+      });
+    }
+
+    return request({ start: start + limit, limit });
   };
 }
 

@@ -6,29 +6,38 @@ from toolz.curried import merge, compose, concatv
 
 
 @frappe.whitelist()
-def get_stock_qtys(warehouse, doctype, items=None):
-    if not warehouse:
-        frappe.throw(frappe._("Please set Warehouse in POS Profile"))
+def get_stock_qtys(warehouse, last_updated, start=0, limit=100):
+    page_length = frappe.utils.cint(limit)
 
-    if doctype not in ["Item", "Batch"]:
-        frappe.throw(frappe._("Cannot get_stock_qtys for {}".format(doctype)))
-
-    if doctype == "Item":
-        return frappe.get_all(
-            "Bin",
-            filters={"item_code": ("in", json.loads(items)), "warehouse": warehouse},
-            fields=["item_code", "warehouse", "actual_qty as qty"],
-        )
-
-    if doctype == "Batch":
-        return frappe.db.get_list(
+    item_stock = frappe.db.get_all(
+        "Bin",
+        filters={"warehouse": warehouse, "modified": (">", last_updated)},
+        fields=["item_code", "warehouse", "actual_qty as qty", "valuation_rate"],
+        order_by="modified",
+        limit_start=frappe.utils.cint(start),
+        limit_page_length=page_length + 1,
+    )
+    batch_stock = (
+        frappe.db.get_list(
             "Stock Ledger Entry",
-            filters={"batch_no": ("in", json.loads(items)), "warehouse": warehouse},
+            filters={
+                "item_code": ("in", [x.get("item_code") for x in item_stock]),
+                "warehouse": warehouse,
+            },
             fields=["batch_no", "warehouse", "sum(actual_qty) as qty"],
             group_by="batch_no, warehouse",
         )
+        if item_stock
+        else []
+    )
 
-    frappe.throw(frappe._("Either a list of items or batches is required"))
+    has_more = len(item_stock) == page_length + 1
+
+    return {
+        "item_stock": item_stock[:page_length],
+        "batch_stock": batch_stock,
+        "has_more": has_more,
+    }
 
 
 @frappe.whitelist()
