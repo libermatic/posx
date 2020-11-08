@@ -49,14 +49,19 @@ export default function sw(Pos) {
         if (this.frm.config.px_use_local_datastore && warehouse) {
           const [route] = frappe.get_route();
           if (route === 'point-of-sale') {
+            if (!this._data_loaded) {
+              frappe.dom.freeze('<h1 style="color: red;">Updating store</h1>');
+            }
             pull_entities()
               .then(pull_stock_qtys({ warehouse }))
-              .finally(() =>
+              .finally(() => {
                 setTimeout(
                   () => this._sync_datastore({ warehouse }),
                   poll_duration
-                )
-              );
+                );
+                this._data_loaded = true;
+                frappe.dom.unfreeze();
+              });
           } else {
             setTimeout(
               () => this._sync_datastore({ warehouse }),
