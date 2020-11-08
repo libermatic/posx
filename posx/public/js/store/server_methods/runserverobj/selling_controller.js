@@ -23,7 +23,7 @@ export async function set_missing_lead_customer_details(_doc, for_validate) {
       shipping_address: doc.shipping_address_name,
       pos_profile: doc.pos_profile,
     });
-    doc = R.mergeWith((x, y) => x || y, doc, party_details);
+    doc = R.mergeWith((x, y) => x || y, doc, party_details || {});
   }
 
   if (
@@ -33,7 +33,7 @@ export async function set_missing_lead_customer_details(_doc, for_validate) {
   ) {
     const taxes = await get_taxes_and_charges(
       'Sales Taxes and Charges Template',
-      self.taxes_and_charges
+      doc.taxes_and_charges
     );
     doc.taxes = [...(doc.taxes || []), ...taxes];
   }

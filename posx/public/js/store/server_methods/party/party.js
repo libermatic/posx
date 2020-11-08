@@ -5,7 +5,7 @@ import { set_taxes } from '../taxes_and_charges';
 import { get_addresses } from '../address';
 
 export async function get_party_account({ party_type, party, company }) {
-  if (party_type !== 'Customer') {
+  if (party_type !== 'Customer' || !party) {
     return;
   }
 

@@ -72,7 +72,7 @@ export async function get_taxes_and_charges({ master_doctype, master_name }) {
     return;
   }
 
-  if (!master_doctype) {
+  if (!master_name) {
     return;
   }
 
