@@ -122,7 +122,7 @@ export function pull_stock_qtys({ warehouse }) {
     ['item_stock', 'batch_stock'].forEach((tableName) => {
       const data = result[tableName] || [];
       if (data.length > 0) {
-        db.table(tableName).bulkPut(data[tableName]);
+        db.table(tableName).bulkPut(data);
       }
     });
 
