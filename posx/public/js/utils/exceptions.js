@@ -25,3 +25,17 @@ export class MultiplePricingRuleConflict extends ValidationError {
     this.name = 'MultiplePricingRuleConflict';
   }
 }
+
+export class PriceListNotFound extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'PriceListNotFound';
+  }
+}
+
+export class MandatoryEntityNotFound extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'MandatoryEntityNotFound';
+  }
+}

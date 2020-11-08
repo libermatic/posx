@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
 import db from '../db';
-import { ValidationError } from '../../utils/exceptions';
+import { PriceListNotFound } from '../../utils/exceptions';
 
 export function snakeCase(text) {
   return text.toLowerCase().replace(' ', '_');
@@ -56,7 +56,7 @@ export async function get_price_list_details(price_list) {
       (x) => x && R.pick(['currency', 'price_not_uom_dependent', 'enabled'], x)
     );
   if (!price_list_details || !price_list_details.enabled) {
-    throw new ValidationError(
+    throw new PriceListNotFound(
       `Price List ${price_list} is disabled or does not exist`
     );
   }

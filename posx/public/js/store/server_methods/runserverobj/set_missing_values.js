@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 
+import { MandatoryEntityNotFound } from '../../../utils/exceptions';
 import db from '../../db';
 import { get_pos_profile } from '../get_item_details/get_item_details';
 import { get_party_account } from '../party/party';
@@ -25,6 +26,11 @@ export default async function set_missing_values(_self, for_validate = false) {
       party: doc.customer,
       company: doc.company,
     });
+    if (!doc.debit_to) {
+      throw new MandatoryEntityNotFound(
+        'set_missing_values: debit_to is empty'
+      );
+    }
     doc.party_account_currency = await db
       .table('Account')
       .get(doc.debit_to)
@@ -88,7 +94,7 @@ async function set_pos_fields(self, for_validate = false) {
       .get(doc.company)
       .then((x) => x && x.default_cash_account);
   }
-  if (pos) {
+  if (pos && !R.isEmpty(pos)) {
     doc.allow_print_before_pay = pos.allow_print_before_pay;
     if (!for_validate) {
       doc.tax_category = pos.tax_category;
@@ -206,14 +212,6 @@ async function update_multi_mode_option(_doc, pos_profile) {
       }
     }
     return doc;
-
-    // .map(R.omit(['name'])).map(
-    //   R.mergeLeft({
-    //     parent: doc.name,
-    //     parentfield: 'taxes',
-    //     parenttype: doc.doctype,
-    //   })
-    // )
   }
 
   for (const payment_mode of pos_profile.payments) {
