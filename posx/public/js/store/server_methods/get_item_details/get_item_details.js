@@ -538,7 +538,7 @@ async function get_valuation_rate(item_code, company, warehouse = null) {
 }
 
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/get_item_details.py#L760
-async function get_pos_profile_item_details(
+export async function get_pos_profile_item_details(
   company,
   args,
   _pos_profile = null,
@@ -572,7 +572,11 @@ async function get_pos_profile_item_details(
 }
 
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/get_item_details.py#L778
-async function get_pos_profile(company, pos_profile = null, _user = null) {
+export async function get_pos_profile(
+  company,
+  pos_profile = null,
+  _user = null
+) {
   if (pos_profile) {
     return db.table('POS Profile').get(pos_profile);
   }

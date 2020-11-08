@@ -118,3 +118,16 @@ export async function get_conversion_factor(item_code, uom) {
   // get_uom_conv_factor is not implemented
   return { conversion_factor };
 }
+
+// https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/doctype/serial_no/serial_no.py#L422
+export function get_serial_no(serial_no) {
+  if (serial_no instanceof Array) {
+    return serial_no;
+  }
+  return (serial_no || '')
+    .toUpperCase()
+    .replace(',', '/n')
+    .split('/n')
+    .map((x) => x.trim())
+    .filter((x) => !!x);
+}
