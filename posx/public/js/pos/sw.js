@@ -5,6 +5,7 @@ import {
   pull_stock_qtys,
   update_qtys,
 } from '../store';
+import { uuid4 } from '../utils';
 
 export default function sw(Pos) {
   return makeExtension(
@@ -23,6 +24,7 @@ export default function sw(Pos) {
       submit_sales_invoice() {
         if (this.frm.config.px_use_local_datastore) {
           update_qtys(this.frm.doc);
+          this.frm.doc.offline_pos_name = uuid4();
         }
         super.submit_sales_invoice();
       }
