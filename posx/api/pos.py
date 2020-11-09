@@ -2,7 +2,22 @@
 from __future__ import unicode_literals
 import json
 import frappe
-from toolz.curried import merge, compose, concatv
+from toolz.curried import merge, compose, concatv, concat
+
+
+@frappe.whitelist()
+def get_modified_doctypes(entities):
+    def get_count(doctype, last_updated, filters=None):
+        return [
+            merge(x, {"doctype": doctype})
+            for x in frappe.db.get_all(
+                doctype,
+                fields=["count(*) as count"],
+                filters=merge(filters or {}, {"modified": (">", last_updated)}),
+            )
+        ]
+
+    return concat([get_count(**x) for x in json.loads(entities)])
 
 
 @frappe.whitelist()

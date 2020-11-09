@@ -6,7 +6,32 @@ import { ENTITIES } from './entities';
 const LIMIT = 100;
 
 export async function pull_entities() {
-  return Promise.all(ENTITIES.map(make_request()));
+  const default_date = frappe.datetime.get_datetime_as_string('1970-01-01');
+  const start_time = frappe.datetime.get_datetime_as_string();
+
+  const states = await db.sync_state
+    .where('doctype')
+    .anyOf(ENTITIES.map((x) => x.doctype))
+    .toArray();
+
+  const entities = ENTITIES.map(({ doctype, get_filters }) => {
+    const { last_updated = default_date } =
+      states.find((x) => x.doctype === doctype) || {};
+    return { doctype, last_updated, filters: get_filters && get_filters() };
+  });
+
+  const { message: doctypes = [] } = await frappe.call({
+    method: 'posx.api.pos.get_modified_doctypes',
+    args: { entities },
+  });
+
+  if (doctypes.length > 0) {
+    await db.sync_state.bulkPut(
+      R.map(R.assoc('start_time', start_time), doctypes)
+    );
+  }
+
+  return Promise.all(ENTITIES.map(make_request(start_time, doctypes)));
 }
 
 export async function clear_entities() {
@@ -20,8 +45,10 @@ export async function clear_entities() {
   );
 }
 
-function make_request() {
-  const start_time = frappe.datetime.get_datetime_as_string();
+function make_request(start_time, doctypes) {
+  const willFetch = (dt) =>
+    (doctypes.find((x) => x.doctype === dt) || {}).count > 0;
+
   return async function request({
     doctype,
     fields,
@@ -30,15 +57,35 @@ function make_request() {
     limit = LIMIT,
     get_filters,
   }) {
+    const state = (await db.sync_state.get(doctype)) || {};
+
+    if (!willFetch(doctype)) {
+      return db.sync_state.put({
+        ...state,
+        doctype,
+        updated: 0,
+        last_updated: start_time,
+      });
+    }
+
+    if (start > (state.count || 0)) {
+      return db.sync_state.put({
+        ...state,
+        doctype,
+        elapsed: (new Date() - frappe.datetime.str_to_obj(start_time)) / 1000,
+        last_updated: start_time,
+      });
+    }
+
     const _fields = [
       ...get_fields({ doctype, fields }),
       ...children.flatMap((x) => get_fields(x, true)),
     ];
-    const modified = await db.sync_state
-      .get(doctype)
-      .then((x) =>
-        x ? x.lastUpdated : frappe.datetime.get_datetime_as_string('1970-01-01')
-      );
+
+    const modified =
+      state.last_updated ||
+      frappe.datetime.get_datetime_as_string('1970-01-01');
+
     const filters = get_filters ? await get_filters({ modified }) : {};
 
     const data = await frappe.db.get_list(doctype, {
@@ -47,10 +94,6 @@ function make_request() {
       limit,
       filters: { ...filters, modified: ['>', modified] },
     });
-
-    if (data.length === 0) {
-      return db.sync_state.put({ doctype, lastUpdated: start_time });
-    }
 
     db.table(doctype).bulkPut(
       R.uniqBy(
@@ -69,6 +112,12 @@ function make_request() {
           .filter((x) => x.name)
       )
     );
+
+    await db.sync_state.put({
+      ...state,
+      doctype,
+      updated: (state.updated || 0) + data.length,
+    });
 
     return request({
       doctype,
@@ -112,7 +161,9 @@ export function pull_stock_qtys({ warehouse }) {
     const last_updated = await db.sync_state
       .get('item_stock')
       .then((x) =>
-        x ? x.lastUpdated : frappe.datetime.get_datetime_as_string('1970-01-01')
+        x && x.last_updated
+          ? x.last_updated
+          : frappe.datetime.get_datetime_as_string('1970-01-01')
       );
     const { message: result = {} } = await frappe.call({
       method: 'posx.api.pos.get_stock_qtys',
@@ -129,7 +180,7 @@ export function pull_stock_qtys({ warehouse }) {
     if (!result.has_more) {
       return db.sync_state.put({
         doctype: 'item_stock',
-        lastUpdated: start_time,
+        last_updated: start_time,
       });
     }
 
