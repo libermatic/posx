@@ -31,7 +31,26 @@ export async function pull_entities() {
     );
   }
 
-  return Promise.all(ENTITIES.map(make_request(start_time, doctypes)));
+  const record_count = R.sum(R.map(R.prop('count'), doctypes));
+
+  record_count &&
+    frappe.show_alert({
+      indicator: 'orange',
+      message: `Datastore: ${record_count} record(s) will be fetched.`,
+    });
+
+  await Promise.all(ENTITIES.map(make_request(start_time, doctypes)));
+
+  record_count &&
+    frappe.show_alert({
+      indicator: 'green',
+      message: `Datastore: ${record_count} record(s) fetched sucessfully in ${(
+        (new Date() - frappe.datetime.str_to_obj(start_time)) /
+        1000
+      ).toFixed(1)} seconds.`,
+    });
+
+  return;
 }
 
 export async function clear_entities() {
@@ -56,7 +75,7 @@ function make_request(start_time, doctypes) {
     start = 0,
     limit = LIMIT,
     get_filters,
-  }) {
+  } = {}) {
     const state = (await db.sync_state.get(doctype)) || {};
 
     if (!willFetch(doctype)) {
@@ -157,7 +176,7 @@ function get_data(data, model, is_child = false) {
 export function pull_stock_qtys({ warehouse }) {
   const start_time = frappe.datetime.get_datetime_as_string();
 
-  return async function request({ start = 0, limit = LIMIT }) {
+  return async function request({ start = 0, limit = LIMIT } = {}) {
     const last_updated = await db.sync_state
       .get('item_stock')
       .then((x) =>
@@ -178,6 +197,14 @@ export function pull_stock_qtys({ warehouse }) {
     });
 
     if (!result.has_more) {
+      frappe.show_alert({
+        indicator: 'green',
+        message: `Datastore: Updated inventory records in ${(
+          (new Date() - frappe.datetime.str_to_obj(start_time)) /
+          1000
+        ).toFixed(1)} seconds.`,
+      });
+
       return db.sync_state.put({
         doctype: 'item_stock',
         last_updated: start_time,

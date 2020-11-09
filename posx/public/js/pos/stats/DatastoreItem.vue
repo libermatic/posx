@@ -2,7 +2,7 @@
   <tr>
     <td>{{ doctype }}</td>
     <td class="text-right">{{ count }}</td>
-    <td class="text-right date">{{ lastUpdated }}</td>
+    <td class="text-right date">{{ last_updated }}</td>
   </tr>
 </template>
 
@@ -12,7 +12,7 @@ import db from '../../store/db';
 export default {
   props: ['doctype'],
   data() {
-    return { count: '-', lastUpdated: '-' };
+    return { count: '-', last_updated: '-' };
   },
   mounted() {
     db.table(this.doctype)
@@ -22,8 +22,8 @@ export default {
       });
     db.sync_state.get(this.doctype).then(x => {
       if (x) {
-        const date = new Date(x.lastUpdated);
-        this.lastUpdated = date.toLocaleString();
+        const date = new Date(x.last_updated);
+        this.last_updated = date.toLocaleString();
       }
     });
   },

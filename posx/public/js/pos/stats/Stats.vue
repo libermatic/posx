@@ -52,7 +52,7 @@ export default {
     return {
       usage: '0',
       quota: '0',
-      lastUpdated: { time: 'N/A', date: '' },
+      last_updated: { time: 'N/A', date: '' },
       features: [],
       entities: [],
     };
