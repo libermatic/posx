@@ -15,7 +15,7 @@ export async function erpnext__stock__get_item_details__apply_price_list({
     if (error instanceof PriceListNotFound) {
       return;
     }
-    throw e;
+    throw error;
   }
 }
 
@@ -40,7 +40,7 @@ export async function erpnext__stock__get_item_details__get_item_details({
     if (error instanceof PriceListNotFound) {
       return;
     }
-    throw e;
+    throw error;
   }
 }
 
