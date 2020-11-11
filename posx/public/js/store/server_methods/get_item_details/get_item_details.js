@@ -387,18 +387,24 @@ async function update_barcode_value(out) {
 
 // https://github.com/frappe/erpnext/blob/f7f8f5c305aa9481c9b142245eadb1b67eaebb9a/erpnext/stock/get_item_details.py#L419
 async function get_item_tax_template(args, item, out) {
+  const taxes = await db
+    .table('Item Tax')
+    .where({ parent: item.name })
+    .and((x) => x.parenttype === 'Item')
+    .toArray();
   let item_tax_template =
-    args.item_tax_template || _get_item_tax_template(args, item.taxes, out);
+    args.item_tax_template || _get_item_tax_template(args, taxes, out);
 
   let item_group = item.item_group;
   if (!item_tax_template) {
     while (item_group && !item_tax_template) {
       const item_group_doc = await db.table('Item Group').get(item_group);
-      item_tax_template = _get_item_tax_template(
-        args,
-        item_group_doc.taxes,
-        out
-      );
+      const taxes = await db
+        .table('Item Tax')
+        .where({ parent: item_group_doc.name })
+        .and((x) => x.parenttype === 'Item Group')
+        .toArray();
+      item_tax_template = _get_item_tax_template(args, taxes, out);
       item_group = item_group_doc.parent_item_group;
     }
   }
@@ -417,10 +423,12 @@ function _get_item_tax_template(
   let taxes_with_no_validity = [];
 
   for (const tax of taxes) {
-    const validation_date =
-      args.transaction_date || args.bill_date || args.posting_date;
-    if (new Date(tax.valid_from) <= new Date(validation_date)) {
-      taxes_with_validity = [...taxes_with_validity, tax];
+    if (tax.valid_from) {
+      const validation_date =
+        args.transaction_date || args.bill_date || args.posting_date;
+      if (new Date(tax.valid_from) <= new Date(validation_date)) {
+        taxes_with_validity = [...taxes_with_validity, tax];
+      }
     } else {
       taxes_with_no_validity = [...taxes_with_no_validity, tax];
     }
@@ -434,7 +442,7 @@ function _get_item_tax_template(
 
   if (for_validate) {
     return _taxes
-      .filter((x) => x.tax_category === args.tax_category)
+      .filter((x) => (x.tax_category || '') === (args.tax_category || ''))
       .map(R.prop('item_tax_template'));
   }
 
@@ -443,7 +451,7 @@ function _get_item_tax_template(
   }
 
   for (const tax of _taxes) {
-    if (tax.tax_category === args.tax_category) {
+    if ((tax.tax_category || '') === (args.tax_category || '')) {
       return tax.item_tax_template;
     }
   }
