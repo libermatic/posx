@@ -26,8 +26,19 @@ export async function pull_entities() {
   });
 
   if (doctypes.length > 0) {
-    await db.sync_state.bulkPut(
-      R.map(R.assoc('start_time', start_time), doctypes)
+    await Promise.all(
+      doctypes.map(({ count, doctype }) =>
+        db.sync_state.get(doctype).then(
+          (x) =>
+            x &&
+            db.sync_state.put({
+              doctype,
+              count,
+              last_updated: x.last_updated,
+              start_time,
+            })
+        )
+      )
     );
   }
 
