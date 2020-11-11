@@ -2,7 +2,10 @@ import * as R from 'ramda';
 
 import { MandatoryEntityNotFound } from '../../../utils/exceptions';
 import db from '../../db';
-import { get_pos_profile } from '../get_item_details/get_item_details';
+import {
+  get_pos_profile,
+  get_pos_profile_item_details,
+} from '../get_item_details/get_item_details';
 import { get_party_account } from '../party/party';
 import { set_taxes } from './accounts_controller';
 import {
