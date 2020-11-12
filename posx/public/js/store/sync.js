@@ -53,7 +53,7 @@ export async function pull_entities() {
   record_count &&
     frappe.show_alert({
       indicator: 'green',
-      message: `Datastore: ${record_count} record(s) fetched sucessfully in ${(
+      message: `Datastore: ${record_count} record(s) updated in ${(
         (new Date() - frappe.datetime.str_to_obj(start_time)) /
         1000
       ).toFixed(1)} seconds.`,
@@ -208,7 +208,7 @@ export function pull_stock_qtys({ warehouse }) {
     if (!result.has_more) {
       frappe.show_alert({
         indicator: 'green',
-        message: `Datastore: Updated inventory records in ${(
+        message: `Datastore: Updated stocks in ${(
           (new Date() - frappe.datetime.str_to_obj(start_time)) /
           1000
         ).toFixed(1)} seconds.`,
