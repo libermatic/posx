@@ -28,15 +28,13 @@ export async function pull_entities() {
   if (doctypes.length > 0) {
     await Promise.all(
       doctypes.map(({ count, doctype }) =>
-        db.sync_state.get(doctype).then(
-          (x) =>
-            x &&
-            db.sync_state.put({
-              doctype,
-              count,
-              last_updated: x.last_updated,
-              start_time,
-            })
+        db.sync_state.get(doctype).then((x) =>
+          db.sync_state.put({
+            doctype,
+            count,
+            last_updated: x ? x.last_updated : null,
+            start_time,
+          })
         )
       )
     );
