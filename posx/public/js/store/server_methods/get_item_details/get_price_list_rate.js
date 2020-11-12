@@ -150,8 +150,8 @@ async function get_item_price(args, item_code, ignore_party = false) {
     .where('item_code')
     .equals(item_code)
     .and((x) => x.price_list === args.price_list)
-    .and((x) => !x.uom || x.uom === uom)
-    .and((x) => (ignore_party ? x.customer === customer : !x.customer))
+    .and((x) => !x.uom || x.uom === args.uom)
+    .and((x) => (ignore_party ? x.customer === args.customer : !x.customer))
     .and(
       (x) =>
         !args.transaction_date ||
