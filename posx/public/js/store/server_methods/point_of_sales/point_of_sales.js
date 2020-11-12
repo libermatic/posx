@@ -1,18 +1,9 @@
 import * as R from 'ramda';
 
-import db from '../db';
-import { getDescendents } from './utils';
+import db from '../../db';
+import { getDescendents } from '../utils';
 
-export async function erpnext__selling__page__point_of_sale__point_of_sale__get_items(
-  args
-) {
-  const message = await get_items(args);
-  if (message) {
-    return { message };
-  }
-}
-
-async function get_items({
+export async function get_items({
   start,
   page_length,
   price_list,
