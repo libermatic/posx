@@ -28,15 +28,13 @@ export async function pull_entities() {
   if (doctypes.length > 0) {
     await Promise.all(
       doctypes.map(({ count, doctype }) =>
-        db.sync_state.get(doctype).then(
-          (x) =>
-            x &&
-            db.sync_state.put({
-              doctype,
-              count,
-              last_updated: x.last_updated,
-              start_time,
-            })
+        db.sync_state.get(doctype).then((x) =>
+          db.sync_state.put({
+            doctype,
+            count,
+            last_updated: x ? x.last_updated : null,
+            start_time,
+          })
         )
       )
     );
@@ -55,7 +53,7 @@ export async function pull_entities() {
   record_count &&
     frappe.show_alert({
       indicator: 'green',
-      message: `Datastore: ${record_count} record(s) fetched sucessfully in ${(
+      message: `Datastore: ${record_count} record(s) updated in ${(
         (new Date() - frappe.datetime.str_to_obj(start_time)) /
         1000
       ).toFixed(1)} seconds.`,
@@ -210,7 +208,7 @@ export function pull_stock_qtys({ warehouse }) {
     if (!result.has_more) {
       frappe.show_alert({
         indicator: 'green',
-        message: `Datastore: Updated inventory records in ${(
+        message: `Datastore: Updated stocks in ${(
           (new Date() - frappe.datetime.str_to_obj(start_time)) /
           1000
         ).toFixed(1)} seconds.`,
