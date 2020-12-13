@@ -18,11 +18,13 @@
       </div>
 
       <div class="list-item-subtitle">
-        <span>@ {{ rate }}</span>
-        <span v-if="item.rate !== item.price_list_rate">
-          <s>{{ price_list_rate }}</s> (-{{ item.discount_percentage }}%)
-        </span>
-        <span>Total: {{ amount }} </span>
+        <div>
+          @ {{ rate }}
+          <span v-if="item.rate !== item.price_list_rate">
+            <s>{{ price_list_rate }}</s> (less {{ item.discount_percentage }}%)
+          </span>
+        </div>
+        <div>Σ {{ amount }}</div>
       </div>
     </div>
     <div class="quantity">
