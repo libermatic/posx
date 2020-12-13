@@ -14,6 +14,7 @@ import hide_payment_numpad from './hide_payment_numpad';
 import submit_and_print, { submit_and_print_payment } from './submit_and_print';
 import offline_print from './offline_print';
 import fixed_renders from './fixed_renders';
+import { updated_cart } from './cart';
 
 // compose applies functions from right to left
 // place extensions that need to run first in the end
@@ -30,6 +31,7 @@ export const pageOverrides = [
   batch_price,
   fixed_batch_selection,
   editable_description,
+  updated_cart,
   base,
 ];
 
