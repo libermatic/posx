@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    <detail v-if="!!state.selected" />
+    <detail v-if="!!state.selected" :onClose="onDeselect" />
   </div>
 </template>
 
@@ -140,6 +140,10 @@ export default {
       const value = this.state.selected === name ? null : name;
       store.setSelected(value);
       this.toggleItems(!value);
+    },
+    onDeselect: function () {
+      store.setSelected(null);
+      this.toggleItems(true);
     },
   },
 };

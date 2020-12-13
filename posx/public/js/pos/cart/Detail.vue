@@ -1,33 +1,44 @@
 <template>
-  <div class="root">
-    <div class="actions">actions</div>
-    <div class="content">
-      <h1>{{ item.item_name }}</h1>
-      <p>
-        <span class="faded">{{ item.item_code }}</span> ·
-        {{ item.item_group }}
-      </p>
-      <div>
-        <span
-          class="chip"
-          v-for="pricing_rule in pricing_rules"
-          :key="pricing_rule"
-          >{{ pricing_rule }}</span
-        >
+  <fragment>
+    <div class="root">
+      <div class="actions">
+        <button class="btn btn-default" @click="onClose">
+          <i class="octicon octicon-x" />
+        </button>
       </div>
-      <batch-selector v-if="item.has_batch_no" :item="item" />
+      <div class="content">
+        <h1>{{ item.item_name }}</h1>
+        <p>
+          <span class="faded">{{ item.item_code }}</span> ·
+          {{ item.item_group }}
+        </p>
+        <div>
+          <span
+            class="chip"
+            v-for="pricing_rule in pricing_rules"
+            :key="pricing_rule"
+            >{{ pricing_rule }}</span
+          >
+        </div>
+        <batch-selector v-if="item.has_batch_no" :item="item" />
+      </div>
     </div>
-  </div>
+    <div class="back-drop" @click="onClose" />
+  </fragment>
 </template>
 
 <script>
+import { Fragment } from 'vue-fragment';
 import * as R from 'ramda';
 
 import store from './store';
 import BatchSelector from './BatchSelector.vue';
 
 export default {
-  components: { BatchSelector },
+  components: { Fragment, BatchSelector },
+  props: {
+    onClose: Function,
+  },
   data: function () {
     return {
       doc: store.doc,
@@ -62,8 +73,10 @@ export default {
   display: flex;
   flex-flow: column nowrap;
   margin-left: 30px;
+  z-index: 1032;
   .actions {
     min-height: 70px;
+    text-align: right;
   }
   .content {
     border: 1px solid var(--dt-border-color);
@@ -87,5 +100,14 @@ export default {
       margin: 0 4px;
     }
   }
+}
+.back-drop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1031;
+  cursor: not-allowed;
 }
 </style>
