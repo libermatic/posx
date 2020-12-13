@@ -20,6 +20,17 @@ class Store {
   async updateItem(item) {
     const idx = this.doc.items.findIndex((x) => x.name === item.name);
     this.doc.items.splice(idx, 1, { ...item });
+    if (item.free_item_data) {
+      const free_item = this.doc.items.find(
+        (x) => x.item_code === item.free_item_data.item_code && x.is_free_item
+      );
+      if (free_item) {
+        const free_idx = this.doc.items.findIndex(
+          (x) => x.name === free_item.name
+        );
+        this.doc.items.splice(free_idx, 1, { ...free_item });
+      }
+    }
   }
   async addItem({ item_code, batch_no, serial_no }) {
     const item = this.frm.add_child('items', {
