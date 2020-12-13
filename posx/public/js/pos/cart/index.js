@@ -44,6 +44,9 @@ export function updated_cart(Pos) {
     'updated_cart',
     class PosWithUpdatedCart extends Pos {
       make_cart() {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.make_cart();
+        }
         this.wrapper.find('.pos').css('min-height', 'calc(100vh - 111px)');
         this.cart = new POSCart({
           frm: this.frm,
@@ -78,6 +81,9 @@ export function updated_cart(Pos) {
         value = 1,
         _batch_no
       ) {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.update_item_in_cart(item_code, field, value, _batch_no);
+        }
         try {
           frappe.dom.freeze();
 
@@ -114,6 +120,11 @@ export function updated_cart(Pos) {
       }
       _toggleItemsArea(state) {
         this.wrapper.find('.item-container').toggle(state);
+      }
+      select_batch_and_serial_no(row) {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.select_batch_and_serial_no(row);
+        }
       }
     }
   );
