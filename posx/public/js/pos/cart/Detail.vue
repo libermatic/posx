@@ -21,6 +21,7 @@
           >
         </div>
         <batch-selector v-if="item.has_batch_no" :item="item" />
+        <item-edit v-else :item="item" />
       </div>
     </div>
     <div class="back-drop" @click="onClose" />
@@ -33,9 +34,10 @@ import * as R from 'ramda';
 
 import store from './store';
 import BatchSelector from './BatchSelector.vue';
+import ItemEdit from './ItemEdit.vue';
 
 export default {
-  components: { Fragment, BatchSelector },
+  components: { Fragment, BatchSelector, ItemEdit },
   props: {
     onClose: Function,
   },
