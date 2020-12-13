@@ -93,15 +93,20 @@ export default {
       }
 
       const rows = this.doc.items.filter(
-        (x) => x.item_code === this.item.item_code
+        (x) => x.item_code === this.item.item_code && x.batch_no
       );
 
       this.batches = await Promise.all(
         rows.map(
           async function (row) {
             const { message: { expiry_date } = {} } =
-              row.batch_no &&
-              (await frappe.db.get_value('Batch', row.batch_no, 'expiry_date'));
+              (row.batch_no &&
+                (await frappe.db.get_value(
+                  'Batch',
+                  row.batch_no,
+                  'expiry_date'
+                ))) ||
+              {};
             return {
               name: row.name,
               batch_no: row.batch_no,
