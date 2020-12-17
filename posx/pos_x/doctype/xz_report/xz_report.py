@@ -118,6 +118,7 @@ class XZReport(Document):
         sum_by_net = sumby("net_total")
         sum_by_discount = compose(operator.neg, sumby("discount_amount"))
         sum_by_taxes = sumby("total_taxes_and_charges")
+        sum_by_change = sumby("change_amount")
         sum_by_grand = sumby("grand_total")
         sum_by_rounded = sumby("rounded_total")
 
@@ -127,8 +128,8 @@ class XZReport(Document):
             filter(lambda x: x.get("type") == "Cash"),
         )
 
-        self.cash_sales = get_cash(sales_payments)
-        self.cash_returns = get_cash(returns_payments)
+        self.cash_sales = get_cash(sales_payments) - sum_by_change(sales)
+        self.cash_returns = get_cash(returns_payments) - sum_by_change(returns)
         self.cash_payins = get_cash(payin_payments)
         self.cash_payouts = get_cash(payout_payments)
 
@@ -137,6 +138,7 @@ class XZReport(Document):
         self.returns__net_total = sum_by_net(returns)
         self.total__net_total = sum_by_net(sales + returns)
         self.total__total_taxes_and_charges = sum_by_taxes(sales + returns)
+        self.total__change_amount = sum_by_change(sales + returns)
         self.total__grand_total = sum_by_grand(sales + returns)
         self.total__rounded_total = sum_by_rounded(sales + returns)
 
@@ -173,6 +175,7 @@ def _get_invoices(args):
             base_net_total AS net_total,
             base_discount_amount AS discount_amount,
             base_total_taxes_and_charges AS total_taxes_and_charges,
+            base_change_amount AS change_amount,
             base_grand_total AS grand_total,
             base_rounded_total AS rounded_total,
             outstanding_amount
