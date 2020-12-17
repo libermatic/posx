@@ -5,7 +5,7 @@ import makeExtension from '../../utils/make-extension';
 import { uuid4 } from '../../utils';
 import db from '../../store/db';
 
-function showSavedInvoices({ onSelect }) {
+export function showSavedInvoices({ onSelect }) {
   const dialog = new frappe.ui.Dialog({
     title: 'Saved Invoices',
   });
@@ -30,21 +30,28 @@ export default function local_draft(Pos) {
     class PosWithLocalDraft extends Pos {
       make_cart() {
         super.make_cart();
-        if (this.frm.config.px_use_local_draft) {
+        if (
+          this.frm.config.px_use_local_draft &&
+          !this.frm.config.px_use_cart_ext
+        ) {
           this._make_local_draft_action();
         }
       }
       prepare_menu() {
         super.prepare_menu();
-        this.page.add_menu_item(__('Pending Sales'), () => {});
+        this.page.add_menu_item(__('Pending Sales'), () => {
+          showSavedInvoices({
+            onSelect: (ofn) => this._load_invoice_to_cart.bind(this.cart)(ofn),
+          });
+        });
       }
 
       _make_local_draft_action() {
         this.$px_actions.prepend(`
           <div class="btn-group">
-            <button class="btn btn-xs px-local-draft-save">Save for Later</buton>
-            <button class="btn btn-xs btn-info px-local-draft-list">List Saved</buton>
-            <button class="btn btn-xs px-local-draft-prev">Load Last</buton>
+            <button class="btn btn-xs px-local-draft-save">Save for Later</button>
+            <button class="btn btn-xs btn-info px-local-draft-list">List Saved</button>
+            <button class="btn btn-xs px-local-draft-prev">Load Last</button>
           </div>
         `);
 

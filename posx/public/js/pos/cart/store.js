@@ -8,6 +8,7 @@ class Store {
   init({ frm }) {
     this.frm = frm;
     this.doc = frm.doc;
+    this.config = frm.config;
   }
 
   setSelected(name) {
