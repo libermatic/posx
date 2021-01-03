@@ -51,10 +51,13 @@
       <div class="totals list-item-table">
         <taxes-and-totals />
       </div>
-      <div class="row">
-        <div class="col-sm-12 text-right">
-          <button class="btn btn-primary" @click="onPay">Pay</button>
+      <div class="actions">
+        <div v-if="config.px_use_local_draft">
+          <local-draft v-bind="localDraftProps" />
         </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" @click="onPay">Pay</button>
       </div>
     </div>
     <detail v-if="!!state.selected" :onClose="onDeselect" />
@@ -71,6 +74,7 @@ import CartTotalItem from './CartTotalItem.vue';
 import TaxesAndTotals from './TaxesAndTotals.vue';
 import Detail from './Detail.vue';
 import store from './store';
+import LocalDraft from '../local_draft/LocalDraft.vue';
 
 const getItems = R.compose(
   R.values,
@@ -78,7 +82,6 @@ const getItems = R.compose(
     (a, x) =>
       R.mergeWithKey(
         (k, l, r) => {
-          console.log(k, l, r);
           if (['amount', 'qty'].includes(k)) {
             return l + r;
           }
@@ -112,15 +115,22 @@ export default {
     CartTotalItem,
     TaxesAndTotals,
     Detail,
+    LocalDraft,
   },
   props: {
     onPay: Function,
     toggleItems: Function,
+    localDraftProps: {
+      onSave: Function,
+      onList: Function,
+      onPrev: Function,
+    },
   },
   data: function () {
     return {
       doc: store.doc,
       state: store.state,
+      config: store.config,
     };
   },
   computed: {
@@ -164,6 +174,15 @@ export default {
   .totals {
     border-top: none;
     margin-bottom: 1em;
+  }
+  .actions {
+    margin-top: 0.5em;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    & > * {
+      margin-left: 0.5em;
+    }
   }
 }
 </style>

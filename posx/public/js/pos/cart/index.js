@@ -1,6 +1,7 @@
 import Vue from 'vue/dist/vue.js';
-import store from './store';
 
+import store from './store';
+import db from '../../store/db';
 import Cart from './Cart.vue';
 import makeExtension from '../../utils/make-extension';
 
@@ -18,10 +19,10 @@ export default class POSCart {
       el: $('<div />').appendTo(this.wrapper)[0],
       render: (h) =>
         h(Cart, {
-          props: {
-            onPay: this.events.onPay.bind(this),
-            toggleItems: this.events.toggleItems.bind(this),
-          },
+          props: Object.keys(this.events).reduce(
+            (a, x) => ({ ...a, [x]: this.events[x] }),
+            {}
+          ),
         }),
     });
   }
@@ -37,6 +38,29 @@ export default class POSCart {
   scroll_to_item(item_code) {}
   add_item(item) {}
   reset() {}
+
+  async load_invoice_to_cart(offline_pos_name) {
+    if (this.frm.doc.items.length > 0) {
+      await new Promise((resolve, reject) => {
+        frappe.confirm(
+          'Your current cart contains some items. ' +
+            'Do you really want to clear them and load the saved invoice?',
+          resolve,
+          reject
+        );
+      });
+    }
+
+    const invoice = await db.draft_invoices.get(offline_pos_name);
+    frappe.model.add_to_locals(invoice);
+    ['items', 'payments', 'taxes'].forEach((field) =>
+      invoice[field].forEach(frappe.model.add_to_locals)
+    );
+    this.frm.refresh(invoice.name);
+    Object.keys(invoice).forEach((field) => {
+      store.doc[field] = invoice[field];
+    });
+  }
 }
 
 export function updated_cart(Pos) {
@@ -64,6 +88,11 @@ export function updated_cart(Pos) {
               this.payment.open_modal();
             },
             toggleItems: this._toggleItemsArea.bind(this),
+            localDraftProps: {
+              onSave: this._local_draft_on_save.bind(this),
+              onList: this._local_draft_on_list.bind(this),
+              onPrev: this._local_draft_on_prev.bind(this),
+            },
           },
         });
       }
