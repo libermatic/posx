@@ -9,7 +9,7 @@ function get_doctype(import_name) {
     .join(' ');
 }
 
-const __version__ = '0.3.5';
+const __version__ = '0.3.6';
 
 frappe.provide('posx');
 posx = { __version__, scripts, extensions };
