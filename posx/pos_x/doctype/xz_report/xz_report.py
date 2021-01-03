@@ -97,27 +97,11 @@ class XZReport(Document):
         get_payin_amount = partial(get_mop_amount, payments=payin_payments)
         get_payout_amount = partial(get_mop_amount, payments=payout_payments)
 
-        def make_payment(mode_of_payment):
-            sales = get_sales_amount(mode_of_payment)
-            returns = get_returns_amount(mode_of_payment)
-            payins = get_payin_amount(mode_of_payment)
-            payouts = get_payout_amount(mode_of_payment)
-            return {
-                "mode_of_payment": mode_of_payment,
-                "type": frappe.get_cached_value(
-                    "Mode of Payment", mode_of_payment, "type"
-                ),
-                "sales": sales,
-                "returns": returns,
-                "payins": payins,
-                "payouts": payouts,
-                "total": sales + returns + payins + payouts,
-            }
-
         sum_by_total = sumby("total")
         sum_by_net = sumby("net_total")
         sum_by_discount = compose(operator.neg, sumby("discount_amount"))
         sum_by_taxes = sumby("total_taxes_and_charges")
+        sum_by_change = sumby("change_amount")
         sum_by_grand = sumby("grand_total")
         sum_by_rounded = sumby("rounded_total")
 
@@ -127,8 +111,33 @@ class XZReport(Document):
             filter(lambda x: x.get("type") == "Cash"),
         )
 
-        self.cash_sales = get_cash(sales_payments)
-        self.cash_returns = get_cash(returns_payments)
+        def make_payment(mode_of_payment):
+            type = frappe.get_cached_value("Mode of Payment", mode_of_payment, "type")
+            is_cash = mode_of_payment == "Cash" and type == "Cash"
+            sales_amount = (
+                get_sales_amount(mode_of_payment) - sum_by_change(sales)
+                if is_cash
+                else get_sales_amount(mode_of_payment)
+            )
+            returns_amount = (
+                get_returns_amount(mode_of_payment) - sum_by_change(returns)
+                if is_cash
+                else get_returns_amount(mode_of_payment)
+            )
+            payins = get_payin_amount(mode_of_payment)
+            payouts = get_payout_amount(mode_of_payment)
+            return {
+                "mode_of_payment": mode_of_payment,
+                "type": type,
+                "sales": sales_amount,
+                "returns": returns_amount,
+                "payins": payins,
+                "payouts": payouts,
+                "total": sales_amount + returns_amount + payins + payouts,
+            }
+
+        self.cash_sales = get_cash(sales_payments) - sum_by_change(sales)
+        self.cash_returns = get_cash(returns_payments) - sum_by_change(returns)
         self.cash_payins = get_cash(payin_payments)
         self.cash_payouts = get_cash(payout_payments)
 
@@ -137,6 +146,7 @@ class XZReport(Document):
         self.returns__net_total = sum_by_net(returns)
         self.total__net_total = sum_by_net(sales + returns)
         self.total__total_taxes_and_charges = sum_by_taxes(sales + returns)
+        self.total__change_amount = sum_by_change(sales + returns)
         self.total__grand_total = sum_by_grand(sales + returns)
         self.total__rounded_total = sum_by_rounded(sales + returns)
 
@@ -173,6 +183,7 @@ def _get_invoices(args):
             base_net_total AS net_total,
             base_discount_amount AS discount_amount,
             base_total_taxes_and_charges AS total_taxes_and_charges,
+            base_change_amount AS change_amount,
             base_grand_total AS grand_total,
             base_rounded_total AS rounded_total,
             outstanding_amount

@@ -42,6 +42,7 @@
   "column_break_34",
   "total__net_total",
   "total__total_taxes_and_charges",
+  "total__change_amount",
   "column_break_37",
   "total__grand_total",
   "total__rounded_total"
@@ -284,10 +285,17 @@
    "fieldtype": "Select",
    "label": "Naming Series",
    "options": "XZ.YY."
+  },
+  {
+   "fieldname": "total__change_amount",
+   "fieldtype": "Currency",
+   "label": "Change",
+   "options": "Company:company:default_currency",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2020-10-07 19:51:23.859942",
+ "modified": "2021-01-04 00:24:35.812600",
  "modified_by": "Administrator",
  "module": "POS X",
  "name": "XZ Report",
