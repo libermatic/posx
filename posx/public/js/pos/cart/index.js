@@ -158,6 +158,32 @@ export function updated_cart(Pos) {
           return super.select_batch_and_serial_no(row);
         }
       }
+
+      handle_selection(direction) {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.handle_selection(direction);
+        }
+      }
+      handle_qty_change(direction) {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.handle_qty_change(direction);
+        }
+      }
+      handle_qty_focus() {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.handle_qty_focus();
+        }
+      }
+      handle_delete() {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.handle_delete();
+        }
+      }
+      handle_pay() {
+        if (!this.frm.config.px_use_cart_ext) {
+          return super.handle_pay();
+        }
+      }
     }
   );
 }

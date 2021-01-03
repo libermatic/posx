@@ -14,6 +14,9 @@ class Store {
   setSelected(name) {
     this.state.selected = name;
   }
+  setHighlighted(name) {
+    this.state.highlighted = name;
+  }
 
   updateCustomer({ customer, language }) {
     this.frm.set_value({ customer, language });

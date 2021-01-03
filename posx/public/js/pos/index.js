@@ -21,17 +21,17 @@ import { updated_cart } from './cart';
 
 export const pageOverrides = [
   stats,
-  local_draft,
   offline_print,
   sw,
   theme,
   submit_and_print,
-  shortcuts,
   xz_report,
   batch_price,
   fixed_batch_selection,
-  editable_description,
   updated_cart,
+  shortcuts,
+  local_draft,
+  editable_description,
   base,
 ];
 
