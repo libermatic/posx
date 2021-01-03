@@ -12,6 +12,19 @@
           <span class="faded">{{ item.item_code }}</span> ·
           {{ item.item_group }}
         </p>
+        <dl>
+          <dt>Description</dt>
+          <dd>
+            {{ description }}
+            <button
+              class="btn btn-xs"
+              @click="onDescriptionEdit(item)"
+              v-if="config.px_can_edit_desc"
+            >
+              <i class="octicon octicon-pencil" />
+            </button>
+          </dd>
+        </dl>
         <div>
           <span
             class="chip"
@@ -40,11 +53,13 @@ export default {
   components: { Fragment, BatchSelector, ItemEdit },
   props: {
     onClose: Function,
+    onDescriptionEdit: Function,
   },
   data: function () {
     return {
       doc: store.doc,
       state: store.state,
+      config: store.config,
     };
   },
   computed: {
@@ -64,6 +79,12 @@ export default {
             .flat()
         )
       );
+    },
+    description: function () {
+      if (!this.item || !this.item.description) {
+        return '';
+      }
+      return this.item.description.replace(/(<([^>]+)>)/gi, '');
     },
   },
 };
@@ -100,6 +121,11 @@ export default {
       padding: 4px 12px;
       border-radius: 12px;
       margin: 0 4px;
+    }
+    dt {
+      font-size: 0.7em;
+      font-weight: 300;
+      text-transform: uppercase;
     }
   }
 }

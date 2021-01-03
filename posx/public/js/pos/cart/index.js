@@ -93,6 +93,9 @@ export function updated_cart(Pos) {
               onList: this._local_draft_on_list.bind(this),
               onPrev: this._local_draft_on_prev.bind(this),
             },
+            editableDescriptionProps: {
+              onDescriptionEdit: this.edit_description.bind(this),
+            },
           },
         });
       }

@@ -60,7 +60,11 @@
         <button class="btn btn-primary" @click="onPay">Pay</button>
       </div>
     </div>
-    <detail v-if="!!state.selected" :onClose="onDeselect" />
+    <detail
+      v-if="!!state.selected"
+      v-bind="editableDescriptionProps"
+      :onClose="onDeselect"
+    />
   </div>
 </template>
 
@@ -124,6 +128,9 @@ export default {
       onSave: Function,
       onList: Function,
       onPrev: Function,
+    },
+    editableDescriptionProps: {
+      onEdit: Function,
     },
   },
   data: function () {

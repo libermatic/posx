@@ -6,7 +6,10 @@ export default function editable_description(Pos) {
     class PosWithEditableDescription extends Pos {
       make_cart() {
         super.make_cart();
-        if (this.frm.config.px_can_edit_desc) {
+        if (
+          this.frm.config.px_can_edit_desc &&
+          !this.frm.config.px_use_cart_ext
+        ) {
           this._make_editable_description_action();
         }
       }
@@ -28,43 +31,40 @@ export default function editable_description(Pos) {
               x.item_code === item_code &&
               (x.batch_no || null) === (batch_no || null)
           );
-          const dialog = new frappe.ui.Dialog({
-            title: `Updating Description for row # ${item.idx}`,
-            fields: [
-              {
-                fieldtype: 'Data',
-                label: 'Item Code',
-                default: item.item_code,
-                read_only: 1,
-              },
-              { fieldtype: 'Column Break' },
-              {
-                fieldtype: 'Data',
-                label: 'Item Name',
-                default: item.item_name,
-                read_only: 1,
-              },
-              { fieldtype: 'Section Break', label: 'Description' },
-              {
-                fieldtype: 'Text Editor',
-                fieldname: 'description',
-                default: item.description,
-              },
-            ],
-          });
-          dialog.set_primary_action('OK', async function () {
-            const description = dialog.get_value('description');
-            frappe.model.set_value(
-              item.doctype,
-              item.name,
-              'description',
-              description
-            );
-            dialog.hide();
-          });
-          dialog.onhide = () => dialog.$wrapper.remove();
-          dialog.show();
+          this.edit_description(item);
         });
+      }
+      edit_description(item) {
+        const dialog = new frappe.ui.Dialog({
+          title: `Updating Description for row # ${item.idx}`,
+          fields: [
+            {
+              fieldtype: 'Data',
+              label: 'Item Code',
+              default: item.item_code,
+              read_only: 1,
+            },
+            { fieldtype: 'Column Break' },
+            {
+              fieldtype: 'Data',
+              label: 'Item Name',
+              default: item.item_name,
+              read_only: 1,
+            },
+            { fieldtype: 'Section Break', label: 'Description' },
+            {
+              fieldtype: 'Text Editor',
+              fieldname: 'description',
+              default: item.description,
+            },
+          ],
+        });
+        dialog.set_primary_action('OK', async function () {
+          item.description = dialog.get_value('description');
+          dialog.hide();
+        });
+        dialog.onhide = () => dialog.$wrapper.remove();
+        dialog.show();
       }
     }
   );
