@@ -1,11 +1,12 @@
 import Vue from 'vue/dist/vue.js';
 
 import SavedInvoices from './SavedInvoices.vue';
+import LocalDraft from './LocalDraft.vue';
 import makeExtension from '../../utils/make-extension';
 import { uuid4 } from '../../utils';
 import db from '../../store/db';
 
-function showSavedInvoices({ onSelect }) {
+export function showSavedInvoices({ onSelect }) {
   const dialog = new frappe.ui.Dialog({
     title: 'Saved Invoices',
   });
@@ -30,67 +31,80 @@ export default function local_draft(Pos) {
     class PosWithLocalDraft extends Pos {
       make_cart() {
         super.make_cart();
-        if (this.frm.config.px_use_local_draft) {
+        if (
+          this.frm.config.px_use_local_draft &&
+          !this.frm.config.px_use_cart_ext
+        ) {
           this._make_local_draft_action();
         }
       }
       prepare_menu() {
         super.prepare_menu();
-        this.page.add_menu_item(__('Pending Sales'), () => {});
+        this.page.add_menu_item(
+          __('Pending Sales'),
+          this._local_draft_on_list.bind(this)
+        );
       }
 
       _make_local_draft_action() {
-        this.$px_actions.prepend(`
-          <div class="btn-group">
-            <button class="btn btn-xs px-local-draft-save">Save for Later</buton>
-            <button class="btn btn-xs btn-info px-local-draft-list">List Saved</buton>
-            <button class="btn btn-xs px-local-draft-prev">Load Last</buton>
-          </div>
-        `);
+        const $container = $('<div />');
+        this.$px_actions.prepend($container);
 
-        this.$px_actions.find('.px-local-draft-save').on(
-          'click',
-          async function () {
-            if (this.frm.doc.items.length === 0) {
-              frappe.msgprint(__('Please add items to the cart first'));
-              return;
-            }
-
-            const offline_pos_name = this.frm.doc.offline_pos_name || uuid4();
-            await db.draft_invoices.put({
-              ...this.frm.doc,
-              offline_pos_name,
-            });
-            db.session_state.put({
-              key: 'last_invoice',
-              value: offline_pos_name,
-            });
-            this.make_new_invoice();
-          }.bind(this)
-        );
-
-        this.$px_actions.find('.px-local-draft-list').on('click', () => {
-          showSavedInvoices({
-            onSelect: (ofn) => this._load_invoice_to_cart.bind(this.cart)(ofn),
-          });
+        new Vue({
+          el: $container[0],
+          render: (h) =>
+            h(LocalDraft, {
+              props: {
+                onSave: this._local_draft_on_save.bind(this),
+                onList: this._local_draft_on_list.bind(this),
+                onPrev: this._local_draft_on_prev.bind(this),
+              },
+            }),
         });
-
-        this.$px_actions.find('.px-local-draft-prev').on(
-          'click',
-          async function () {
-            const last_invoice = await db.session_state.get('last_invoice');
-            if (!last_invoice) {
-              frappe.msgprint(__('No draft invoice found'));
-              return;
-            }
-
-            this._load_invoice_to_cart.bind(this.cart)(last_invoice.value);
-          }.bind(this)
-        );
       }
 
-      // actually a POSCart method. should be called from POS with cart context
-      async _load_invoice_to_cart(offline_pos_name) {
+      async _local_draft_on_save() {
+        if (this.frm.doc.items.length === 0) {
+          frappe.msgprint(__('Please add items to the cart first'));
+          return;
+        }
+
+        const offline_pos_name = this.frm.doc.offline_pos_name || uuid4();
+        await db.draft_invoices.put({
+          ...this.frm.doc,
+          offline_pos_name,
+        });
+        db.session_state.put({
+          key: 'last_invoice',
+          value: offline_pos_name,
+        });
+        this.make_new_invoice();
+      }
+
+      _local_draft_on_list() {
+        showSavedInvoices({
+          onSelect: (ofn) => this.cart.load_invoice_to_cart(ofn),
+        });
+      }
+
+      async _local_draft_on_prev() {
+        const last_invoice = await db.session_state.get('last_invoice');
+        if (!last_invoice) {
+          frappe.msgprint(__('No draft invoice found'));
+          return;
+        }
+
+        this.cart.load_invoice_to_cart(last_invoice.value);
+      }
+    }
+  );
+}
+
+export function local_draft_cart(POSCart) {
+  return makeExtension(
+    'local_draft_cart',
+    class CartWithLocalDraft extends POSCart {
+      async load_invoice_to_cart(offline_pos_name) {
         if (this.frm.doc.items.length > 0) {
           await new Promise((resolve, reject) => {
             frappe.confirm(

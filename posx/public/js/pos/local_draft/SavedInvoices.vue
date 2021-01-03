@@ -3,7 +3,10 @@
     <tbody>
       <tr v-for="invoice in invoices" :key="invoice.offline_pos_name">
         <td>
-          <a class="no-decoration text-muted" @click="onSelect(invoice.offline_pos_name)">
+          <a
+            class="no-decoration text-muted"
+            @click="onSelect(invoice.offline_pos_name)"
+          >
             <div class="table-line table-line-title">
               <div>{{ invoice.customer_name }}</div>
               <div>{{ invoice.customer }}</div>
@@ -12,14 +15,27 @@
               <div>{{ invoice.offline_pos_name }}</div>
             </div>
             <div class="table-line table-line-subtitle">
-              <div>{{ formatDate(invoice.posting_date, invoice.posting_time) }}</div>
-              <div>{{ formatQty(invoice.pos_total_qty) }}</div>
-              <div class="bold">{{ formatCurrency(invoice.rounded_total, invoice.currency) }}</div>
+              <div>
+                {{ formatDate(invoice.posting_date, invoice.posting_time) }}
+              </div>
+              <div>
+                {{
+                  formatQty(
+                    invoice.items.reduce((a, { qty = 0 }) => a + qty, 0)
+                  )
+                }}
+              </div>
+              <div class="bold">
+                {{ formatCurrency(invoice.rounded_total, invoice.currency) }}
+              </div>
             </div>
           </a>
         </td>
         <td class="text-right">
-          <a class="no-decoration text-muted" @click="removeInvoice(invoice.offline_pos_name)">
+          <a
+            class="no-decoration text-muted"
+            @click="removeInvoice(invoice.offline_pos_name)"
+          >
             <i class="fa fa-lg fa-trash-o" />
           </a>
         </td>
@@ -33,24 +49,24 @@ import db from '../../store/db';
 
 export default {
   props: ['onSelect'],
-  data: function() {
+  data: function () {
     return { invoices: [] };
   },
   methods: {
-    getInvoices: async function() {
+    getInvoices: async function () {
       this.invoices = await db.draft_invoices.toArray();
     },
-    removeInvoice: async function(ofn) {
+    removeInvoice: async function (ofn) {
       await db.draft_invoices.delete(ofn);
       this.getInvoices();
     },
-    formatDate: function(date, time) {
+    formatDate: function (date, time) {
       return new Date(`${date} ${time}`).toLocaleString();
     },
-    formatQty: function(qty) {
+    formatQty: function (qty) {
       return `${qty} nos`;
     },
-    formatCurrency: function(amount, currency) {
+    formatCurrency: function (amount, currency) {
       const formatter = new Intl.NumberFormat(undefined, {
         style: 'currency',
         currency,
