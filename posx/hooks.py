@@ -47,7 +47,7 @@ app_include_js = ["/assets/js/posx.min.js"]
 page_js = {"point-of-sale": "public/includes/point_of_sale.js"}
 
 # include js in doctype views
-# doctype_js = {"Sales Invoice": "public/includes/sales_invoice.js"}
+doctype_js = {"Sales Invoice": "public/includes/sales_invoice.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -138,10 +138,10 @@ doc_events = {
 
 # Overriding Methods
 # ------------------------------
-#
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "posx.event.get_events"
-# }
+
+override_whitelisted_methods = {
+    "erpnext.stock.get_item_details.apply_price_list": "posx.overrides.get_item_details.apply_price_list",
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
