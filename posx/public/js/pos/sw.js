@@ -14,6 +14,7 @@ export default function sw(Pos) {
       async make() {
         const result = await super.make();
         this._setup_datastore();
+        this._setup_indicator();
         return result;
       }
       async on_change_pos_profile() {
@@ -28,6 +29,7 @@ export default function sw(Pos) {
         }
         super.submit_sales_invoice();
       }
+      async set_online_status() {}
 
       async _setup_datastore() {
         const { px_use_local_datastore, warehouse } = this.frm.config;
@@ -70,6 +72,38 @@ export default function sw(Pos) {
               poll_duration
             );
           }
+        }
+      }
+      _setup_indicator() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data.type === 'SYNC_STATUS') {
+              const { last_sync = null, unsynced_count = 0 } =
+                event.data.data || {};
+              const saved_msg = last_sync
+                ? `Last saved on ${moment(last_sync).format(
+                    'ddd, MMM D, hh:mm:ss a'
+                  )}`
+                : 'Never saved';
+
+              if (unsynced_count) {
+                this.page.set_indicator(
+                  `${saved_msg}. <span style="font-weight:normal">${unsynced_count} invoice(s) remaining.</span>`,
+                  'orange'
+                );
+              } else {
+                this.page.set_indicator(
+                  `<span style="font-weight:normal">${saved_msg}</span>`,
+                  'lightblue'
+                );
+              }
+            }
+          });
+
+          // get init state
+          navigator.serviceWorker.controller.postMessage({
+            type: 'GET_SYNC_STATUS',
+          });
         }
       }
     }
