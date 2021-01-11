@@ -258,6 +258,7 @@ export const ENTITIES = [
       'display_items_in_stock',
       'px_enable_xz_report',
       'px_use_batch_price',
+      'px_use_cart_ext',
       'px_can_edit_desc',
       'px_disabled_write_off',
       'px_hide_numpads',
