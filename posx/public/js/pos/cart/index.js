@@ -37,7 +37,12 @@ export default class POSCart {
   update_qty_total() {}
   scroll_to_item(item_code) {}
   add_item(item) {}
-  reset() {}
+  reset() {
+    Object.keys(this.frm.doc).forEach((field) => {
+      store.doc[field] = this.frm.doc[field];
+    });
+    this.frm.doc = store.doc;
+  }
 
   async load_invoice_to_cart(offline_pos_name) {
     if (this.frm.doc.items.length > 0) {
@@ -51,15 +56,11 @@ export default class POSCart {
       });
     }
 
-    const invoice = await db.draft_invoices.get(offline_pos_name);
-    frappe.model.add_to_locals(invoice);
-    ['items', 'payments', 'taxes'].forEach((field) =>
-      invoice[field].forEach(frappe.model.add_to_locals)
-    );
-    this.frm.refresh(invoice.name);
-    Object.keys(invoice).forEach((field) => {
-      store.doc[field] = invoice[field];
-    });
+    const doc = await db.draft_invoices.get(offline_pos_name);
+    frappe.model.sync(doc);
+    frappe.model.new_name_count['Sales Invoice Item'] += doc.items.length;
+    this.frm.refresh(doc.name);
+    this.reset();
   }
 }
 
@@ -150,6 +151,7 @@ export function updated_cart(Pos) {
           frappe.dom.unfreeze();
         }
       }
+
       _toggleItemsArea(state) {
         this.wrapper.find('.item-container').toggle(state);
       }
