@@ -68,6 +68,16 @@ export function updated_cart(Pos) {
   return makeExtension(
     'updated_cart',
     class PosWithUpdatedCart extends Pos {
+      prepare_dom() {
+        super.prepare_dom();
+        this.wrapper
+          .find('.pos')
+          .css({ display: 'flex', 'flex-flow': 'row nowrap' });
+        this.wrapper.find('.pos .cart-container').css({ flex: '1 1 auto' });
+        this.wrapper
+          .find('.pos .item-container')
+          .css({ width: '50%', 'max-width': 'calc(3 * 182px + 2 * 15px)' });
+      }
       make_cart() {
         if (!this.frm.config.px_use_cart_ext) {
           return super.make_cart();
