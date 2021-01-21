@@ -5,7 +5,7 @@ from erpnext.stock.get_item_details import get_item_price
 from toolz.curried import merge
 
 
-@frappe.whitelist(0)
+@frappe.whitelist()
 def get_item_details(item_code, batch_no=None, price_list=None):
     return merge(
         {"price": _get_price(item_code, batch_no, price_list)},
