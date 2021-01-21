@@ -101,9 +101,11 @@ export default function sw(Pos) {
           });
 
           // get init state
-          navigator.serviceWorker.controller.postMessage({
-            type: 'GET_SYNC_STATUS',
-          });
+          if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+              type: 'GET_SYNC_STATUS',
+            });
+          }
         }
       }
     }
