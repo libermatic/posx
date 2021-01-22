@@ -87,6 +87,13 @@ export default {
       return this.item.description.replace(/(<([^>]+)>)/gi, '');
     },
   },
+  watch: {
+    item: function ({ qty }) {
+      if (qty === 0) {
+        this.onClose();
+      }
+    },
+  },
 };
 </script>
 
