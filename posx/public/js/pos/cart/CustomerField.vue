@@ -8,8 +8,13 @@ import store from './store';
 export default {
   data: function () {
     return {
-      value: store.doc.customer,
+      doc: store.doc,
     };
+  },
+  computed: {
+    customer: function () {
+      return this.doc.customer;
+    },
   },
   mounted() {
     const field = frappe.ui.form.make_control({
@@ -36,10 +41,10 @@ export default {
       render_input: true,
     });
 
-    field.set_value(this.value);
-    this.$watch('value', (oldValue, newValue) => {
+    field.set_value(this.customer);
+    this.$watch('customer', (newValue, oldValue) => {
       if (oldValue !== newValue) {
-        field.set_value(newValue);
+        field.set_input(newValue);
       }
     });
   },
