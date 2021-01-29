@@ -75,13 +75,16 @@ class Store {
     frappe.dom.unfreeze();
   }
   async updateDiscount({ additional_discount_percentage, discount_amount }) {
-    frappe.model.set_value(
+    await frappe.model.set_value(
       this.doc,
       R.pickBy((x) => !R.isNil(x), {
         additional_discount_percentage,
         discount_amount,
       })
     );
+    if (!R.isNil(discount_amount)) {
+      this.frm.trigger('discount_amount');
+    }
   }
 }
 
