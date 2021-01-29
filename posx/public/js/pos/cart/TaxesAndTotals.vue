@@ -15,20 +15,26 @@
     </div>
     <div class="discount-amount" v-show="showDiscount && showTaxes">
       <cart-total-item label="Discount" class_name="discount-inputs">
-        <input
-          type="text"
-          class="form-control additional_discount_percentage text-right"
-          placeholder="% 0.00"
-          :value="formatted_discount_percentage"
-          @change="onDiscountPercentageChange"
-        />
-        <input
-          type="text"
-          class="form-control discount_amount text-right"
-          :placeholder="discount_amount_placeholder"
-          :value="formatted_discount_amount"
-          @change="onDiscountAmountChange"
-        />
+        <div>
+          <input
+            type="text"
+            class="form-control additional_discount_percentage text-right"
+            placeholder="0.00"
+            :value="formatted_discount_percentage"
+            @change="onDiscountPercentageChange"
+          />
+          <span class="adornment">%</span>
+        </div>
+        <div>
+          <input
+            type="text"
+            class="form-control discount_amount text-right"
+            placeholder="0.00"
+            :value="formatted_discount_amount"
+            @change="onDiscountAmountChange"
+          />
+          <span class="adornment">{{ currency_symbol }}</span>
+        </div>
       </cart-total-item>
     </div>
     <div class="grand-total" @click="toggleTaxes">
@@ -87,8 +93,8 @@ export default {
         flt(this.doc.discount_amount, precision('discount_amount'))
       );
     },
-    discount_amount_placeholder: function () {
-      return `${get_currency_symbol(this.doc.currency)} 0.00`;
+    currency_symbol: function () {
+      return get_currency_symbol(this.doc.currency);
     },
   },
   methods: {
@@ -110,4 +116,17 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.discount-inputs {
+  & > div {
+    position: relative;
+    & > .adornment {
+      position: absolute;
+      left: 0;
+      bottom: 10px;
+      padding: 5px;
+      filter: opacity(0.5);
+    }
+  }
+}
+</style>
