@@ -25,13 +25,10 @@
             </button>
           </dd>
         </dl>
-        <div>
-          <span
-            class="chip"
-            v-for="pricing_rule in pricing_rules"
-            :key="pricing_rule"
-            >{{ pricing_rule }}</span
-          >
+        <div class="chips">
+          <span v-for="pricing_rule in pricing_rules" :key="pricing_rule">{{
+            pricing_rule
+          }}</span>
         </div>
         <batch-selector v-if="item.has_batch_no" :item="item" />
         <item-edit v-else :item="item" />
@@ -123,11 +120,16 @@ export default {
     .smaller {
       font-size: 0.9em;
     }
-    .chip {
-      background-color: var(--dt-border-color);
-      padding: 4px 12px;
-      border-radius: 12px;
-      margin: 0 4px;
+    .chips {
+      margin: 1em 0;
+      & > span {
+        background-color: var(--dt-border-color);
+        color: #6c7680;
+        font-size: 0.9em;
+        padding: 4px 12px;
+        border-radius: 12px;
+        margin: 0 4px;
+      }
     }
     dt {
       font-size: 0.7em;
