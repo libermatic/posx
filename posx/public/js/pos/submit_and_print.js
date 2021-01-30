@@ -17,6 +17,9 @@ export default function submit_and_print(Pos) {
               message: __(`Sales invoice ${doc.name} created succesfully`),
             });
           } catch (error) {
+            if (error && error.exc) {
+              return;
+            }
             frappe.throw('Something happened!');
           }
           this.toggle_editing();
