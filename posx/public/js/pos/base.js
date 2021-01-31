@@ -60,6 +60,8 @@ export default function base(Pos) {
             pos_profile,
             warehouse,
           });
+        }
+        if (px_use_local_datastore) {
           cache_settings();
         }
       }
