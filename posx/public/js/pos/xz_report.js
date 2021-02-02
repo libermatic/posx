@@ -28,6 +28,7 @@ export async function get_xz_report(pos_profile, company) {
         fieldname: 'start_datetime',
         label: __('Start Datetime'),
         default: frappe.datetime.now_datetime(),
+        reqd: 1,
       },
       { fieldtype: 'Column Break' },
       {
@@ -43,7 +44,7 @@ export async function get_xz_report(pos_profile, company) {
   return new Promise((resolve, reject) => {
     dialog.set_primary_action('Enter', async function () {
       try {
-        const { start_datetime, opening_cash } = dialog.get_values();
+        const { start_datetime, opening_cash = 0 } = dialog.get_values();
         const { message: xz_report } = await frappe.call({
           method: 'posx.api.xz_report.create_opening',
           args: { start_datetime, opening_cash, company, pos_profile },
