@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import frappe
-from erpnext.stock.get_item_details import get_item_price
 from posx.doc_events.purchase_receipt import _create_batch_price
 
 
@@ -23,4 +22,3 @@ def execute():
         )
 
     frappe.delete_doc_if_exists("Custom Field", "Batch-px_price_list_rate")
-    frappe.delete_doc_if_exists("Custom Field", "POS Profile-px_use_batch_price")

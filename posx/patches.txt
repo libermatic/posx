@@ -1,1 +1,2 @@
 posx.patches.v13_0.migrate_to_upstream_batch_price
+posx.patches.v13_0.remove_pos_profile_custom_fields
