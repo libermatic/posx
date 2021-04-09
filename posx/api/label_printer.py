@@ -15,18 +15,12 @@ def get_item_details(item_code, batch_no=None, price_list=None):
 
 
 def _get_price(item_code, batch_no, price_list):
-    if batch_no:
-        batch_price_list_rate = frappe.get_cached_value(
-            "Batch", batch_no, "px_price_list_rate"
-        )
-        if batch_price_list_rate:
-            return batch_price_list_rate
-
     args = {
         "price_list": price_list
         or frappe.get_cached_value("Selling Settings", None, "selling_price_list"),
         "uom": frappe.get_cached_value("Item", item_code, "stock_uom"),
         "transaction_date": frappe.utils.today(),
+        "batch_no": batch_no,
     }
     try:
         item_price = get_item_price(args, item_code, ignore_party=True)
@@ -64,4 +58,3 @@ def _get_barcode(item_code):
         )
     except frappe.DoesNotExistError:
         return {}
-
