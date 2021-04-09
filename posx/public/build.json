@@ -1,6 +1,5 @@
 {
   "js/posx.min.js": ["public/js/index.js"],
-  "js/posx-service-worker.min.js": ["public/js/sw/index.js"],
   "css/posx-print.css": ["public/css/barcode.css"],
   "js/posx-print.min.js": ["public/js/print.js"],
   "js/posx-pos.min.js": ["public/js/extensions/pos.js"],
