@@ -27,8 +27,8 @@ export default function discount_amount(ItemCart) {
           );
         const get_label_text = () =>
           $discount_type.is(':checked') ? get_currency_symbol() : '%';
-        const get_discount_fieldname = () =>
-          $discount_type.is(':checked')
+        const get_discount_fieldname = (v) =>
+          $discount_type.is(':checked') || !v
             ? 'discount_amount'
             : 'additional_discount_percentage';
 
@@ -39,7 +39,8 @@ export default function discount_amount(ItemCart) {
             placeholder: get_placeholder_text(),
             input_class: 'input-sm',
             onchange: async function () {
-              if (this.discount_field.value === null) {
+              const value = this.discount_field.get_value();
+              if (value === null) {
                 return;
               }
 
@@ -47,8 +48,8 @@ export default function discount_amount(ItemCart) {
               await frappe.model.set_value(
                 frm.doc.doctype,
                 frm.doc.name,
-                get_discount_fieldname(),
-                flt(this.discount_field.value)
+                get_discount_fieldname(value),
+                flt(value)
               );
               this.hide_discount_control();
               this.discount_field = undefined;
