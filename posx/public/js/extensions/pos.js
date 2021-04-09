@@ -1,11 +1,11 @@
 import { compose } from 'ramda';
 
-import { pageOverrides, cartOverrides, paymentOverrides } from '../pos';
+import { cartOverrides } from '../pos';
 
-const pos = {
-  page: compose(...pageOverrides),
-  cart: compose(...cartOverrides),
-  payment: compose(...paymentOverrides),
+frappe.provide('posx.pos');
+
+posx.pos.override = function (ns) {
+  if (ns.ItemCart) {
+    ns.ItemCart = compose(...cartOverrides)(ns.ItemCart);
+  }
 };
-
-export default pos;
