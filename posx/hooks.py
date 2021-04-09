@@ -101,7 +101,6 @@ page_js = {"point-of-sale": "public/includes/point_of_sale.js"}
 # Hook on document methods and events
 
 doc_events = {
-    "POS Profile": {"validate": "posx.doc_events.pos_profile.validate",},
     "Purchase Receipt": {
         "before_validate": "posx.doc_events.purchase_receipt.before_validate",
     },
@@ -147,4 +146,3 @@ doc_events = {
 # override_doctype_dashboards = {
 # 	"Task": "posx.task.get_dashboard_data"
 # }
-
