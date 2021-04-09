@@ -1,3 +1,5 @@
+export * from './make-extension';
+
 export function uuid4() {
   // https://stackoverflow.com/questions/105034/how-to-create-guid-uuid
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
