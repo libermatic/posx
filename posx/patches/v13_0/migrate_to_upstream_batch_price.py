@@ -23,3 +23,4 @@ def execute():
         )
 
     frappe.delete_doc_if_exists("Custom Field", "Batch-px_price_list_rate")
+    frappe.delete_doc_if_exists("Custom Field", "POS Profile-px_use_batch_price")
