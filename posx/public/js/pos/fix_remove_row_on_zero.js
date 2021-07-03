@@ -3,10 +3,10 @@ import { makeExtension } from '../utils';
 /**
  * remove item from cart view and close item detail when qty is set to 0
  */
-export default function fix_syntax_error(Controller) {
+export default function fix_remove_row_on_zero(Controller) {
   return makeExtension(
-    'fix_syntax_error',
-    class ControllerWithFixSyntaxError extends Controller {
+    'fix_remove_row_on_zero',
+    class ControllerWithFixRemoveRowOnZero extends Controller {
       init_item_details() {
         super.init_item_details();
         this.item_details.events.form_updated = async function (
