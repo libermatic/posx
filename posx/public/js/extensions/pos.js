@@ -1,6 +1,6 @@
 import { compose } from 'ramda';
 
-import { controllerOverrides, cartOverrides, detailsOverrides } from '../pos';
+import { controllerOverrides, cartOverrides } from '../pos';
 
 frappe.provide('posx.pos');
 
@@ -10,8 +10,5 @@ posx.pos.override = function (ns) {
   }
   if (ns.ItemCart) {
     ns.ItemCart = compose(...cartOverrides)(ns.ItemCart);
-  }
-  if (ns.ItemDetails) {
-    ns.ItemDetails = compose(...detailsOverrides)(ns.ItemDetails);
   }
 };
