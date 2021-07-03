@@ -3,7 +3,7 @@ import { makeExtension } from '../utils';
 export default function rerender_fields(ItemDetails) {
   return makeExtension(
     'rerender_fields',
-    class ItemDetailsWithRerenderFieldsr extends ItemDetails {
+    class ItemDetailsWithRerenderFields extends ItemDetails {
       bind_custom_control_change_event() {
         super.bind_custom_control_change_event();
 
