@@ -8,7 +8,7 @@ function get_doctype(import_name) {
     .join(' ');
 }
 
-const __version__ = '13.0.1';
+const __version__ = '13.1.0';
 
 frappe.provide('posx');
 posx = { __version__, scripts };
