@@ -64,6 +64,9 @@ export default function discount_amount(ItemCart) {
           this.discount_field.input.placeholder = get_placeholder_text();
           $discount_by.text(get_label_text());
         });
+        if (this._settings && this._settings.px_default_discount_type === 'Amount') {
+          $discount_type.click();
+        }
       }
       hide_discount_control() {
         const {
