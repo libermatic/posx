@@ -4,38 +4,74 @@ export default function discount_amount(ItemCart) {
   return makeExtension(
     'discount_amount',
     class ItemCartWithDiscountAmount extends ItemCart {
+      constructor(args) {
+        super(args);
+        this._default_discount_type = args.settings && args.settings.px_default_discount_type;
+      }
+
+      load_invoice() {
+        const { discount_amount } = this.events.get_frm().doc;
+        if (discount_amount) {
+          this._discount_type = 'discount_amount';
+          this._discount_value = discount_amount;
+        } else {
+          this._discount_type =
+            this._default_discount_type === 'Amount'
+              ? 'discount_amount'
+              : 'additional_discount_percentage';
+          this._discount_value = undefined;
+        }
+        super.load_invoice();
+        this.hide_discount_control();
+      }
+
       show_discount_control() {
+        const get_label_text = () =>
+          this._discount_type === 'discount_amount'
+            ? get_currency_symbol()
+            : '%';
+
+        const get_placeholder_text = () =>
+          __(
+            `Enter discount ${
+              this._discount_type === 'discount_amount'
+                ? 'amount'
+                : 'percentage'
+            }.`
+          );
+
+        const set_discount_in_frm = (value, fieldname) => {
+          const frm = this.events.get_frm();
+          return frappe.model.set_value(
+            frm.doc.doctype,
+            frm.doc.name,
+            fieldname,
+            value
+          );
+        };
+
         this.$add_discount_elem.css({ padding: '0px', border: 'none' });
         this.$add_discount_elem.html(`
+          <div class="backdrop" />
           <div class="switch-control">
             <input type="checkbox" id="discount_type" />
             <label for="discount_type" />
           </div>
           <div>
-            <div class="discount_by">%</div>
+            <div class="discount_by">${get_label_text()}</div>
           </div>
           <div class="add-discount-field" />
         `);
         const $discount_type = this.$add_discount_elem.find('#discount_type');
         const $discount_by = this.$add_discount_elem.find('.discount_by');
 
-        const get_placeholder_text = () =>
-          __(
-            `Enter discount ${
-              $discount_type.is(':checked') ? 'amount' : 'percentage'
-            }.`
-          );
-        const get_label_text = () =>
-          $discount_type.is(':checked') ? get_currency_symbol() : '%';
-        const get_discount_fieldname = (v) =>
-          $discount_type.is(':checked') || !v
-            ? 'discount_amount'
-            : 'additional_discount_percentage';
-
         this.discount_field = frappe.ui.form.make_control({
           df: {
             label: __('Discount'),
-            fieldtype: 'Float',
+            fieldtype:
+              this._discount_type === 'discount_amount'
+                ? 'Currency'
+                : 'Percent',
             placeholder: get_placeholder_text(),
             input_class: 'input-sm',
             onchange: async function () {
@@ -44,35 +80,61 @@ export default function discount_amount(ItemCart) {
                 return;
               }
 
-              const frm = this.events.get_frm();
-              await frappe.model.set_value(
-                frm.doc.doctype,
-                frm.doc.name,
-                get_discount_fieldname(value),
-                flt(value)
+              this._discount_value = flt(value);
+              await set_discount_in_frm(
+                this._discount_value,
+                !this._discount_value
+                  ? 'additional_discount_percentage'
+                  : this._discount_type
               );
+
               this.hide_discount_control();
-              this.discount_field = undefined;
             }.bind(this),
           },
           parent: this.$add_discount_elem.find('.add-discount-field'),
           render_input: true,
         });
+
+        this.discount_field.set_input(this._discount_value);
+        $discount_type.prop(
+          'checked',
+          this._discount_type === 'discount_amount'
+        );
+
         this.discount_field.toggle_label(false);
         this.discount_field.set_focus();
-        $discount_type.change(() => {
-          this.discount_field.input.placeholder = get_placeholder_text();
-          $discount_by.text(get_label_text());
-        });
-        if (this._settings && this._settings.px_default_discount_type === 'Amount') {
-          $discount_type.click();
-        }
+
+        $discount_type.on(
+          'change',
+          async function () {
+            this._discount_type = $discount_type.is(':checked')
+              ? 'discount_amount'
+              : 'additional_discount_percentage';
+            $discount_by.text(get_label_text());
+            this.discount_field.input.placeholder = get_placeholder_text();
+
+            this._discount_value = undefined;
+            this.discount_field.set_input();
+
+            await set_discount_in_frm(0, 'discount_amount');
+          }.bind(this)
+        );
+        this.$add_discount_elem
+          .find('.backdrop')
+          .css({
+            'background-color': 'var(--bg-color)',
+            opacity: 0.5,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          })
+          .on('click', () => this.hide_discount_control());
       }
       hide_discount_control() {
-        const {
-          additional_discount_percentage,
-          discount_amount,
-        } = this.events.get_frm().doc;
+        const { additional_discount_percentage, discount_amount } =
+          this.events.get_frm().doc;
         if (discount_amount) {
           this.$add_discount_elem.css({
             border: '1px dashed var(--dark-green-500)',
@@ -98,6 +160,8 @@ export default function discount_amount(ItemCart) {
             `${this.get_discount_icon()} Add Discount`
           );
         }
+
+        this.discount_field = undefined;
       }
     }
   );
