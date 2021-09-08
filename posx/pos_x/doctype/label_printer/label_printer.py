@@ -12,6 +12,7 @@ from posx.api.label_printer import get_item_details
 
 
 class LabelPrinter(Document):
+    @frappe.whitelist()
     def set_items_from_reference(self):
         ref_doc = frappe.get_doc(self.print_dt, self.print_dn)
         self.items = []
