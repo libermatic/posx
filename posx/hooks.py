@@ -96,6 +96,14 @@ app_include_js = ["/assets/js/posx.min.js"]
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
+# DocType Class
+# ---------------
+# Override standard doctype classes
+
+override_doctype_class = {
+    "POS Invoice": "posx.overrides.pos_invoice.CustomPOSInvoice",
+}
+
 # Document Events
 # ---------------
 # Hook on document methods and events
