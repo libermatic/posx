@@ -7,7 +7,13 @@ export default function ignore_availability(Controller) {
   return makeExtension(
     'ignore_availability',
     class ControllerIgnoreAvailability extends Controller {
-        async check_stock_availability(item_row, qty_needed, warehouse) {}
+        async check_stock_availability(item_row, qty_needed, warehouse) {
+          if (this.settings.px_ignore_availability) {
+            return;
+          }
+
+          return super.check_stock_availability(item_row, qty_needed, warehouse);
+        }
     }
   );
 }
