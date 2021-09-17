@@ -9,4 +9,4 @@ class CustomPOSInvoice(POSInvoice):
         ):
             return
 
-        super(POSInvoice, self).validate_stock_availablility()
+        super().validate_stock_availablility()
