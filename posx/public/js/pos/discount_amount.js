@@ -87,8 +87,6 @@ export default function discount_amount(ItemCart) {
                   ? 'additional_discount_percentage'
                   : this._discount_type
               );
-
-              this.hide_discount_control();
             }.bind(this),
           },
           parent: this.$add_discount_elem.find('.add-discount-field'),
