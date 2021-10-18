@@ -6,7 +6,8 @@ export default function discount_amount(ItemCart) {
     class ItemCartWithDiscountAmount extends ItemCart {
       constructor(args) {
         super(args);
-        this._default_discount_type = args.settings && args.settings.px_default_discount_type;
+        this._default_discount_type =
+          args.settings && args.settings.px_default_discount_type;
       }
 
       load_invoice() {
@@ -83,9 +84,7 @@ export default function discount_amount(ItemCart) {
               this._discount_value = flt(value);
               await set_discount_in_frm(
                 this._discount_value,
-                !this._discount_value
-                  ? 'additional_discount_percentage'
-                  : this._discount_type
+                this._discount_type || 'additional_discount_percentage'
               );
             }.bind(this),
           },
