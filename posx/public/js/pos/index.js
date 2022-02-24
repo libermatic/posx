@@ -8,11 +8,13 @@ import fix_null_qty_for_service_items from './fix_null_qty_for_service_items';
 import fix_stock_check_fail_for_service_items from './fix_stock_check_fail_for_service_items';
 import fix_cart_qty_not_incremented from './fix_cart_qty_not_incremented';
 import fix_console_err_accessing_mobile_no from './fix_console_err_accessing_mobile_no';
+import fix_mops_removed_on_checkout from './fix_mops_removed_on_checkout';
 
 export const controllerOverrides = [
   ignore_availability,
   fix_stock_check_fail_for_service_items,
   set_batch_number,
+  fix_mops_removed_on_checkout,
   fix_remove_row_on_zero,
   fix_cart_qty_not_incremented,
 ];
