@@ -11,4 +11,3 @@ __pycache__
 # Bench runtime
 node_modules/
 posx/public/node_modules
-yarn.lock
