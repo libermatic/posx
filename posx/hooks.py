@@ -42,7 +42,7 @@ app_include_js = ["/assets/js/posx.min.js"]
 # web_include_js = "/assets/posx/js/posx.js"
 
 # include js in page
-# page_js = {"point-of-sale": "public/includes/point_of_sale.js"}
+page_js = {"point-of-sale": "public/includes/point_of_sale.js"}
 
 # include js in doctype views
 # doctype_js = {"doctype": "public/includes/doctype.js"}
