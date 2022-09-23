@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:asset_name",
+ "creation": "2022-09-22 08:18:20.419538",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset_name",
+  "asset_type",
+  "disabled",
+  "script_sec",
+  "overriden_class",
+  "script",
+  "style_sec",
+  "style"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "asset_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Asset Type",
+   "options": "JS\nCSS",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "depends_on": "eval:doc.asset_type==='JS'",
+   "fieldname": "script_sec",
+   "fieldtype": "Section Break",
+   "label": "Script"
+  },
+  {
+   "fieldname": "overriden_class",
+   "fieldtype": "Select",
+   "label": "Overriden Class",
+   "mandatory_depends_on": "eval:doc.asset_type==='JS'",
+   "options": "\nController\nItemCart\nItemDetails\nItemSelector\nNumberPad\nPastOrderList\nPastOrderSummary\nPayment"
+  },
+  {
+   "fieldname": "script",
+   "fieldtype": "Code",
+   "label": "Code",
+   "mandatory_depends_on": "eval:doc.asset_type==='JS'",
+   "options": "JS"
+  },
+  {
+   "depends_on": "eval:doc.asset_type==='CSS'",
+   "fieldname": "style_sec",
+   "fieldtype": "Section Break",
+   "label": "Style"
+  },
+  {
+   "fieldname": "style",
+   "fieldtype": "Code",
+   "label": "Code",
+   "mandatory_depends_on": "eval:doc.asset_type==='CSS'",
+   "options": "CSS"
+  }
+ ],
+ "links": [],
+ "modified": "2022-09-22 09:30:46.840866",
+ "modified_by": "Administrator",
+ "module": "POS X",
+ "name": "POS Asset",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
