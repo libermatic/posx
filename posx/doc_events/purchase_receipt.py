@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import frappe
 import erpnext
 from erpnext.stock.get_item_details import get_item_price

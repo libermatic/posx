@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=no-member
 # Copyright (c) 2020, Libermatic and contributors
 # For license information, please see license.txt
 
-from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from toolz.curried import merge, keyfilter

@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import frappe
 from posx.doc_events.purchase_receipt import _create_batch_price
 

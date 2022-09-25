@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from posx.doc_events.purchase_receipt import set_or_create_batch
 
 
