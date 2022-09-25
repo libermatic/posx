@@ -19,10 +19,7 @@
   },
   "homepage": "https://github.com/libermatic/posx#readme",
   "dependencies": {
-    "dexie": "^3.2.2",
     "jsbarcode": "^3.11.5",
-    "nunjucks": "^3.2.3",
-    "ramda": "^0.27.2",
-    "vue-fragment": "^1.6.0"
+    "ramda": "^0.28.0"
   }
 }
