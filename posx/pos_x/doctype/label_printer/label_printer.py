@@ -4,7 +4,7 @@
 
 import frappe
 from frappe.model.document import Document
-from toolz.curried import merge, keyfilter
+from toolz.curried import keyfilter
 
 from posx.api.label_printer import get_item_details
 
@@ -17,16 +17,15 @@ class LabelPrinter(Document):
         for ref_item in ref_doc.items:
             self.append(
                 "items",
-                merge(
-                    keyfilter(
+                {
+                    **keyfilter(
                         lambda x: x in ["item_code", "item_name", "qty", "batch_no"],
                         ref_item.as_dict(),
                     ),
-                    get_item_details(
+                    **get_item_details(
                         ref_item.item_code,
                         ref_item.batch_no,
                         price_list=self.price_list,
                     ),
-                ),
+                },
             )
-
