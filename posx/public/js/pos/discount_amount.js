@@ -53,7 +53,7 @@ export default function discount_amount(ItemCart) {
 
         this.$add_discount_elem.css({ padding: '0px', border: 'none' });
         this.$add_discount_elem.html(`
-          <div class="backdrop" />
+          <div class="backdrop"></div>
           <div class="switch-control">
             <input type="checkbox" id="discount_type" />
             <label for="discount_type" />
@@ -61,7 +61,7 @@ export default function discount_amount(ItemCart) {
           <div>
             <div class="discount_by">${get_label_text()}</div>
           </div>
-          <div class="add-discount-field" />
+          <div class="add-discount-field"></div>
         `);
         const $discount_type = this.$add_discount_elem.find('#discount_type');
         const $discount_by = this.$add_discount_elem.find('.discount_by');
