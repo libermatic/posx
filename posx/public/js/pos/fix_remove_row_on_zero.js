@@ -9,11 +9,7 @@ export default function fix_remove_row_on_zero(Controller) {
     class ControllerWithFixRemoveRowOnZero extends Controller {
       init_item_details() {
         super.init_item_details();
-        this.item_details.events.form_updated = async function (
-          item,
-          field,
-          value
-        ) {
+        this.item_details.events.form_updated = async (item, field, value) => {
           const item_row = frappe.model.get_doc(item.doctype, item.name);
           if (item_row && item_row[field] != value) {
             if (field === 'qty' && flt(value) == 0) {
@@ -24,7 +20,7 @@ export default function fix_remove_row_on_zero(Controller) {
             const args = { field, value, item: this.item_details.current_item };
             return this.on_cart_update(args);
           }
-        }.bind(this);
+        };
       }
     }
   );

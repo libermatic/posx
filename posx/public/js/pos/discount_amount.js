@@ -75,7 +75,7 @@ export default function discount_amount(ItemCart) {
                 : 'Percent',
             placeholder: get_placeholder_text(),
             input_class: 'input-sm',
-            onchange: async function () {
+            onchange: async  () => {
               const value = this.discount_field.get_value();
               if (value === null) {
                 return;
@@ -86,7 +86,7 @@ export default function discount_amount(ItemCart) {
                 this._discount_value,
                 this._discount_type || 'additional_discount_percentage'
               );
-            }.bind(this),
+            },
           },
           parent: this.$add_discount_elem.find('.add-discount-field'),
           render_input: true,
@@ -103,7 +103,7 @@ export default function discount_amount(ItemCart) {
 
         $discount_type.on(
           'change',
-          async function () {
+          async () => {
             this._discount_type = $discount_type.is(':checked')
               ? 'discount_amount'
               : 'additional_discount_percentage';
@@ -114,7 +114,7 @@ export default function discount_amount(ItemCart) {
             this.discount_field.set_input();
 
             await set_discount_in_frm(0, 'discount_amount');
-          }.bind(this)
+          }
         );
         this.$add_discount_elem
           .find('.backdrop')
