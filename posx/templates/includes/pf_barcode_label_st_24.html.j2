@@ -1,8 +1,4 @@
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="/assets/css/posx-print.css"
-/>
+{{ include_style('posx-print.bundle.css') }}
 
 {% set page_margin_horz = 'calc((210mm - {cols} * {width} - ({cols} - 1) * {gap}) / 2)'.format(
   cols=col_num or 1, width=label_width or '0mm', gap=column_gap or '0mm'
@@ -122,10 +118,8 @@
 </table>
 
 
-<script
-  type="text/javascript"
-  src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"
-></script>
+{{ include_script('posx-print.bundle.js') }}
+
 <script type="text/javascript">
   const iframe = document.getElementsByClassName('print-format-container')[0];
   if (iframe) {
