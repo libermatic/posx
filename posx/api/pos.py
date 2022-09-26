@@ -39,7 +39,8 @@ def _get_code(asset):
             _script_template,
             {
                 **asset,
-                "extended_class_name": f'{asset.overriden_class}With{re.sub(r"[^a-zA-Z ]", "", asset.name).title().replace(" ", "")}',
+                "name": frappe.utils.quote(asset.name),
+                "extended_class_name": f'{asset.overriden_class}With{re.sub(r"[^a-zA-Z ]", " ", asset.name).title().replace(" ", "")}',
             },
         )
 
@@ -51,10 +52,15 @@ def _get_code(asset):
 
 _script_template = """
 if (erpnext.PointOfSale.hasOwnProperty('{{ overriden_class }}')) {
-    class {{ extended_class_name }} extends erpnext.PointOfSale.{{ overriden_class }} {
-{{ script }}
-    }
-    erpnext.PointOfSale.{{ overriden_class }} = {{ extended_class_name }};
+    erpnext.PointOfSale.{{ overriden_class }} = (function (Parent) {
+        return posx.utils.makeExtension(
+            '{{ name }}',
+            class {{ extended_class_name }} extends Parent {
+                {{ script }}
+            },
+            'site'
+        );
+    })(erpnext.PointOfSale.{{ overriden_class }});
 }
 """
 
