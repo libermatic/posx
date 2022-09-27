@@ -1,6 +1,7 @@
 import * as scripts from './scripts';
 import * as cscripts from './cscripts';
 import * as utils from './utils';
+import { __version__ } from './version';
 
 function get_doctype(import_name) {
   return import_name
@@ -8,8 +9,6 @@ function get_doctype(import_name) {
     .map((w) => w[0].toUpperCase() + w.slice(1))
     .join(' ');
 }
-
-const __version__ = '13.4.2';
 
 frappe.provide('posx');
 posx = { __version__, scripts, utils };
