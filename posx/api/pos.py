@@ -2,16 +2,27 @@
 import re
 import json
 import frappe
+from toolz.curried import compose, mapcat
 
 
 @frappe.whitelist()
 def list_asset_names():
-    return frappe.db.get_all(
+    assets = frappe.db.get_all(
         "POS Asset",
         filters={"disabled": 0},
-        fields=["name", "asset_type"],
+        fields=["name", "script", "style"],
         order_by="name asc",
     )
+    return compose(
+        list,
+        mapcat(
+            lambda x: [
+                f'{x.name}.{"js" if asset_type == "script" else "css"}'
+                for asset_type in ["script", "style"]
+                if bool(x.get(asset_type))
+            ]
+        ),
+    )(assets)
 
 
 @frappe.whitelist()
@@ -20,21 +31,33 @@ def list_assets(sources=[]):
     if sources:
         if isinstance(sources, str):
             sources = json.loads(sources)
-        filters.update({"name": ("in", sources)})
+        print(sources)
+        filters.update(
+            {"name": ("in", list({re.sub(r"(\.js|\.css)$", "", x) for x in sources}))}
+        )
 
     assets = frappe.db.get_all(
         "POS Asset",
         filters=filters,
-        fields=["name", "asset_type", "script", "overriden_class", "style"],
+        fields=["name", "script", "overriden_class", "style"],
     )
-    return [
-        {"name": x.name, "asset_type": x.asset_type, "code": _get_code(x)}
-        for x in assets
-    ]
+    return compose(
+        list,
+        mapcat(
+            lambda asset: [
+                {
+                    "name": f'{asset.name}.{"js" if asset_type == "script" else "css"}',
+                    "code": _get_code(asset, asset_type),
+                }
+                for asset_type in ["script", "style"]
+                if bool(asset.get(asset_type))
+            ]
+        ),
+    )(assets)
 
 
-def _get_code(asset):
-    if asset.asset_type == "JS":
+def _get_code(asset, asset_type):
+    if asset_type == "script":
         return frappe.render_template(
             _script_template,
             {
@@ -44,7 +67,7 @@ def _get_code(asset):
             },
         )
 
-    if asset.asset_type == "CSS":
+    if asset_type == "style":
         return frappe.render_template(_style_template, asset)
 
     frappe.throw(f"Invalid asset type: {asset.name}")
