@@ -2,16 +2,17 @@
 
 ERPNext POS Extended
 
-#### Usage
+### Usage
 
-- Serve with SSL.
-- Send `Service-Worker-Allowed: /desk` in HTTP headers.
+`erpnext.PointOfSale` components can be extended by selecting the component and overriding its methods as shown in the screenshots. Styles can also be added in the _CSS_ field.
 
-#### Not (Yet) Implemented
+![POS Asset 01](docs/pos_asset_01.png)
+![POS Asset 02](docs/pos_asset_02.png)
 
-- Tax Rule. Just uses the _Taxes and Charges_ set in the **POS Profile**
-- Multiple Currency
+The example shown above renders the `price_list_rate` and the `discount_percentage` of an item in the **ItemCart** component.
 
-#### License
+![POS 01](docs/pos_01.png)
+
+### License
 
 MIT
