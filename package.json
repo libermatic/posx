@@ -21,7 +21,7 @@
   "dependencies": {
     "dexie": "^3.2.2",
     "jsbarcode": "^3.11.0",
-    "nunjucks": "^3.2.2",
+    "nunjucks": "^3.2.4",
     "ramda": "^0.27.0",
     "vue-fragment": "^1.5.1"
   }
